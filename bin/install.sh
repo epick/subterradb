@@ -62,6 +62,26 @@ if ! docker info &> /dev/null; then
 fi
 ok "docker daemon reachable"
 
+# On Linux, make sure docker.service is enabled in systemd so the daemon
+# (and therefore every container marked `restart: unless-stopped`) survives
+# a host reboot. The Docker apt/dnf packages usually enable it on install,
+# but we double-check defensively. macOS Docker Desktop has its own auto-start
+# mechanism, so we skip this branch when systemctl isn't available.
+if command -v systemctl &> /dev/null && systemctl list-unit-files docker.service &> /dev/null; then
+  if systemctl is-enabled docker.service &> /dev/null; then
+    ok "docker.service is enabled at boot"
+  else
+    warn "docker.service is NOT enabled at boot — enabling it now (may prompt for sudo)"
+    if sudo systemctl enable docker.service &> /dev/null; then
+      ok "docker.service enabled — stack will survive host reboots"
+    else
+      warn "failed to enable docker.service automatically"
+      warn "run \`sudo systemctl enable docker.service\` manually so the stack"
+      warn "comes back up after a host reboot"
+    fi
+  fi
+fi
+
 # Optional but useful: openssl for secret generation. Most distros have it.
 if ! command -v openssl &> /dev/null; then
   err "openssl is not installed (needed to generate secrets)."
