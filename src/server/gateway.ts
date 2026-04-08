@@ -5,8 +5,8 @@ import type { GatewayPlugin, GatewayRoute } from '@/features/gateway/types';
 // for the Gateway dashboard.
 //
 // Kong's Admin API exposes /services, /routes, /plugins, /consumers as
-// paginated endpoints. For Phase 0 we trust that the data set fits in one
-// page (we have at most a few dozen routes); a real deployment would need
+// paginated endpoints. We currently trust that the data set fits in one
+// page (a few dozen routes at most); a high-scale deployment would need
 // pagination handling.
 
 interface KongService {
@@ -138,8 +138,9 @@ export async function getGatewaySnapshot(): Promise<{
       services: projectServiceIds.size,
       routes: gatewayRoutes.length,
       plugins: totalPlugins,
-      // We don't have real request metrics yet — show 0 until Phase 2 hooks
-      // up Vector / Logflare. The dashboard label still reads "Requests / hour".
+      // Real request metrics aren't wired up yet — this stays 0 until a
+      // future Vector / Logflare integration. The dashboard label still
+      // reads "Requests / hour".
       requestsPerHour: 0,
     },
   };

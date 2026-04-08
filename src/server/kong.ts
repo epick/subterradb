@@ -3,8 +3,7 @@ import { env } from './env';
 
 // Kong 3.7.1 Admin API client.
 //
-// Implements every gotcha validated by the spike on 2026-04-07
-// (see memory/reference_kong_admin_api_gotchas.md):
+// Implements the non-obvious gotchas of the Admin API in DB mode:
 //
 //   1. Array fields use `key[]=value` repeated N times — NOT CSV.
 //   2. Long values (Supabase-style JWTs ~200+ chars) go through
@@ -289,9 +288,9 @@ export interface ProvisionProjectInput {
   anonKey: string;
   serviceKey: string;
   /**
-   * Per-service upstream URLs. Phase 1.5 sets `rest` and `auth` to the
-   * dynamically-launched containers; missing entries fall back to the shared
-   * placeholder upstream so the gateway routes still resolve.
+   * Per-service upstream URLs pointing at the dynamically-launched per-project
+   * containers. Missing entries fall back to a shared placeholder upstream so
+   * the gateway routes still resolve.
    */
   upstreams?: Partial<Record<ProjectServiceType, string>>;
 }
@@ -319,9 +318,7 @@ export async function provisionProject(
   const routeIds = {} as Record<ProjectServiceType, string>;
 
   // 2. Create one Kong service + one route per Supabase service type.
-  //    rest + auth point at the per-project containers (Phase 1.5).
-  //    storage + realtime still hit the placeholder until Phase 2 wires them
-  //    to the shared Supabase storage/realtime services.
+  //    Each route points at its corresponding per-project container.
   for (const type of PROJECT_SERVICES) {
     const serviceName = `${type}_${slug}`;
     const routeName = `${type}_${slug}_route`;

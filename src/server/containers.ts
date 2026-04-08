@@ -1,10 +1,12 @@
 import Docker from 'dockerode';
 
-// Container orchestrator for SubterraDB Phase 1.5.
+// Container orchestrator.
 //
-// Per the PRD section 6.3, every project gets exactly two new containers:
+// Every project gets four dedicated containers:
 //   - postgrest_{slug} (PostgREST — auto-generated REST API)
 //   - gotrue_{slug}    (Supabase Auth — GoTrue)
+//   - storage_{slug}   (Supabase Storage)
+//   - realtime_{slug}  (Supabase Realtime)
 //
 // Both attach to the docker network created by docker-compose
 // (`subterradb_default`) so they can resolve `subterradb-postgres` by name
@@ -84,10 +86,9 @@ interface ProjectContainerInput {
   serviceKey: string;
 }
 
-// Container name conventions match the PRD: postgrest_{slug}, gotrue_{slug}
-// We add storage_{slug} per-project (Phase 3) — diverges from the PRD which
-// described Storage as shared, but Supabase Storage isn't natively multi-tenant
-// so per-project containers are the practical path.
+// Container name convention: {service}_{slug}, e.g. postgrest_my_app.
+// Storage is launched per-project (rather than shared) because Supabase
+// Storage isn't natively multi-tenant.
 function postgrestContainerName(slug: string): string {
   return `postgrest_${slug}`;
 }
@@ -198,7 +199,7 @@ export async function launchGoTrue(input: ProjectContainerInput): Promise<Launch
       'GOTRUE_SITE_URL=http://localhost:58000',
       'GOTRUE_URI_ALLOW_LIST=',
       'GOTRUE_EXTERNAL_EMAIL_ENABLED=true',
-      // Mailer disabled for Phase 1.5 — confirmed users can sign in immediately.
+      // Mailer disabled — sign-ups are auto-confirmed and can sign in immediately.
       'GOTRUE_MAILER_AUTOCONFIRM=true',
     ],
     Labels: {

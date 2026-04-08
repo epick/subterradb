@@ -4,6 +4,7 @@ import { setRequestLocale } from 'next-intl/server';
 import { AppTopbar } from '@/components/layout/app-topbar';
 import { ProjectDetailHeader } from '@/features/projects/components/project-detail-header';
 import { ProjectDetailTabs } from '@/features/projects/components/project-detail-tabs';
+import { ProvisioningPoller } from '@/features/projects/components/provisioning-poller';
 import { getCurrentUser } from '@/server/auth';
 import { getProjectForViewer } from '@/server/projects';
 import { projectDatabaseName } from '@/server/project-db';
@@ -59,6 +60,9 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
       <main className="min-h-0 flex-1 overflow-y-auto px-6 py-8 lg:px-10 lg:py-10">
         <div className="mx-auto flex w-full max-w-7xl flex-col gap-8">
           <ProjectDetailHeader project={project} canManage={user.role === 'admin'} />
+          {/* Polls /api/projects/[id] every 2s while provisioning, then
+              router.refresh()es so the page picks up the new status. */}
+          <ProvisioningPoller projectId={project.id} status={project.status} />
           <ProjectDetailTabs
             project={project}
             mcpServerPath={mcpServerPath}

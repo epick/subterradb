@@ -99,8 +99,11 @@ export function NewProjectForm() {
         setSubmitting(false);
         return;
       }
-      const body = (await res.json()) as { project: { id: string } };
-      router.push(`/projects/${body.project.id}`);
+      // Backend returns 201 immediately with the row in `provisioning` state.
+      // Take the user straight to the projects list — the new card already
+      // shows up there with a "provisioning" badge that flips to "running"
+      // automatically once the background provisioning finishes (~20-30s).
+      router.push('/projects');
       router.refresh();
     } catch {
       setErrorCode('projects.network_error');

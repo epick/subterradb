@@ -81,7 +81,7 @@ CREATE INDEX IF NOT EXISTS idx_sessions_user ON platform_sessions (user_id);
 CREATE INDEX IF NOT EXISTS idx_sessions_token_hash ON platform_sessions (token_hash);
 CREATE INDEX IF NOT EXISTS idx_sessions_expires ON platform_sessions (expires_at);
 
--- Audit log — write-only for now; queryable views land in a later phase.
+-- Audit log — write-only for now; queryable views are a future addition.
 CREATE TABLE IF NOT EXISTS audit_log (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      UUID REFERENCES platform_users (id) ON DELETE SET NULL,

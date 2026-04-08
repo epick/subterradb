@@ -19,8 +19,8 @@ import type { SessionUser } from './auth';
 //   - A Kong consumer holding both keys, attached to a per-project ACL group
 //   - 4 Kong services (rest/auth/storage/realtime) + 4 routes + plugin set
 //
-// In Phase 0 the upstreams all point at the shared httpbin placeholder.
-// Phase 1.5 will replace each service's URL with the per-project container.
+// Each Kong service's upstream URL is set to the per-project container that
+// the orchestrator just launched (postgrest_{slug}, gotrue_{slug}, etc.).
 
 export type ProjectStatus = 'provisioning' | 'running' | 'stopped' | 'error';
 
@@ -199,10 +199,16 @@ export interface CreateProjectResult {
   anonKey: string;
 }
 
+// createProject inserts the row in `provisioning` state and returns immediately,
+// then runs the long provisioning sequence (DB + 4 containers + Kong routes)
+// in the background. The caller gets back the row plus a `runProvisioning`
+// promise it can fire-and-forget — the API route does NOT await it, so the
+// HTTP response goes back in ~200ms instead of 20-30s. The frontend then
+// navigates to the project detail page where polling shows status updates.
 export async function createProject(
   owner: SessionUser,
   input: CreateProjectInput,
-): Promise<CreateProjectResult> {
+): Promise<CreateProjectResult & { runProvisioning: () => Promise<void> }> {
   if (owner.role !== 'admin') {
     throw Object.assign(new Error('Only admins can create projects'), {
       code: 'projects.forbidden',
@@ -254,85 +260,89 @@ export async function createProject(
     return r.rows[0];
   });
 
-  // 2. Full provisioning sequence (Phase 1.5):
-  //    a. CREATE DATABASE proj_{slug} + roles + base schema/extensions
-  //    b. Launch postgrest_{slug} + gotrue_{slug} containers
-  //    c. Register Kong services + routes pointing at the new containers
+  // 2. The long provisioning sequence — packaged as a closure so the API
+  //    route can fire-and-forget it. The HTTP response goes back immediately
+  //    with status='provisioning', and the frontend polls until it flips to
+  //    'running' or 'error'.
+  //
+  //    Steps:
+  //      a. CREATE DATABASE proj_{slug} + roles + base schema/extensions
+  //      b. Launch the four per-project containers (postgrest, gotrue,
+  //         storage, realtime)
+  //      c. Register Kong services + routes pointing at the new containers
   //
   //    On any failure, mark the project as `error` and best-effort roll back
   //    everything we already created so retries start from a clean slate.
-  try {
-    // a. Per-project database — creates the database, the slug-prefixed
-    //    authenticator role (LOGIN), and grants it the cluster-wide anon /
-    //    authenticated / service_role roles that PostgREST switches between
-    //    based on the JWT's `role` claim.
-    const dbInfo = await createProjectDatabase({
-      slug,
-      authenticatorPassword: dbPassword,
-    });
+  const runProvisioning = async (): Promise<void> => {
+    try {
+      // a. Per-project database — creates the database, the slug-prefixed
+      //    authenticator role (LOGIN), and grants it the cluster-wide anon /
+      //    authenticated / service_role roles that PostgREST switches between
+      //    based on the JWT's `role` claim.
+      const dbInfo = await createProjectDatabase({
+        slug,
+        authenticatorPassword: dbPassword,
+      });
 
-    // b. Containers — uses dockerode to talk to the local Docker daemon.
-    //    Phase 3 launches 3 containers per project: postgrest + gotrue + storage.
-    //    Realtime is best-effort and lives in Phase 4.
-    await launchProjectContainers({
-      slug,
-      databaseName: dbInfo.databaseName,
-      authenticator: dbInfo.authenticator,
-      authenticatorPassword: dbPassword,
-      jwtSecret,
-      anonKey,
-      serviceKey,
-    });
+      // b. Containers — uses dockerode to talk to the local Docker daemon.
+      //    Launches four containers per project: postgrest + gotrue + storage
+      //    + realtime. Realtime is best-effort and not blocking on failure.
+      await launchProjectContainers({
+        slug,
+        databaseName: dbInfo.databaseName,
+        authenticator: dbInfo.authenticator,
+        authenticatorPassword: dbPassword,
+        jwtSecret,
+        anonKey,
+        serviceKey,
+      });
 
-    // c. Kong, with rest + auth + storage + realtime services all pointing at
-    //    the per-project containers we just launched.
-    const result = await provisionProject({
-      slug,
-      anonKey,
-      serviceKey,
-      upstreams: {
-        rest: `http://${containerNames.postgrest(slug)}:3000`,
-        auth: `http://${containerNames.gotrue(slug)}:9999`,
-        storage: `http://${containerNames.storage(slug)}:5000`,
-        realtime: `http://${containerNames.realtime(slug)}:4000`,
-      },
-    });
+      // c. Kong, with rest + auth + storage + realtime services all pointing at
+      //    the per-project containers we just launched.
+      const result = await provisionProject({
+        slug,
+        anonKey,
+        serviceKey,
+        upstreams: {
+          rest: `http://${containerNames.postgrest(slug)}:3000`,
+          auth: `http://${containerNames.gotrue(slug)}:9999`,
+          storage: `http://${containerNames.storage(slug)}:5000`,
+          realtime: `http://${containerNames.realtime(slug)}:4000`,
+        },
+      });
 
-    await query(
-      `UPDATE projects
-       SET status = 'running',
-           kong_consumer_id = $1,
-           kong_service_ids = $2::jsonb,
-           kong_route_ids = $3::jsonb,
-           last_activity_at = now()
-       WHERE id = $4`,
-      [
-        result.consumerId,
-        JSON.stringify(result.serviceIds),
-        JSON.stringify(result.routeIds),
-        inserted.id,
-      ],
-    );
-    inserted.status = 'running';
-  } catch (err) {
-    await query(`UPDATE projects SET status = 'error' WHERE id = $1`, [inserted.id]);
-    // Best-effort rollback of every provisioning step.
-    await deprovisionProject(slug).catch(() => {});
-    await stopProjectContainers(slug).catch(() => {});
-    await dropProjectDatabase(slug).catch(() => {});
-    throw Object.assign(
-      new Error(
-        `Failed to provision project ${slug}: ${
-          err instanceof Error ? err.message : String(err)
-        }`,
-      ),
-      { code: 'projects.provisioning_failed', status: 502 },
-    );
-  }
+      await query(
+        `UPDATE projects
+         SET status = 'running',
+             kong_consumer_id = $1,
+             kong_service_ids = $2::jsonb,
+             kong_route_ids = $3::jsonb,
+             last_activity_at = now()
+         WHERE id = $4`,
+        [
+          result.consumerId,
+          JSON.stringify(result.serviceIds),
+          JSON.stringify(result.routeIds),
+          inserted.id,
+        ],
+      );
+    } catch (err) {
+      // eslint-disable-next-line no-console
+      console.error(`[projects] provisioning failed for ${slug}:`, err);
+      await query(`UPDATE projects SET status = 'error' WHERE id = $1`, [inserted.id]).catch(
+        () => {},
+      );
+      // Best-effort rollback of every provisioning step.
+      await deprovisionProject(slug).catch(() => {});
+      await stopProjectContainers(slug).catch(() => {});
+      await dropProjectDatabase(slug).catch(() => {});
+    }
+  };
 
   return {
     project: rowToProject(inserted),
     anonKey,
+    runProvisioning,
   };
 }
 

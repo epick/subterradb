@@ -1,8 +1,8 @@
 # @subterradb/mcp-server
 
-Model Context Protocol server for [SubterraDB](https://github.com/influx-network-lab/subterradb). Lets MCP-aware editors (Claude Code, Cursor, Windsurf, ...) talk to a local SubterraDB project so an agent can list tables, run SQL, and inspect project metadata without leaving the editor.
+Model Context Protocol server for [SubterraDB](https://github.com/epick/subterradb). Lets MCP-aware editors (Claude Code, Cursor, Windsurf, ...) talk to a local SubterraDB project so an agent can list tables, run SQL, and inspect project metadata without leaving the editor.
 
-Per the PRD, this MCP coexists with the official Supabase MCP — they target different environments (local vs cloud). Activate one or the other depending on whether you're developing locally against SubterraDB or against Supabase Cloud production.
+This MCP coexists with the official Supabase MCP — they target different environments (local vs cloud). Activate one or the other depending on whether you're developing locally against SubterraDB or against Supabase Cloud production.
 
 ## Install
 

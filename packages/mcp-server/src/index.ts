@@ -7,15 +7,15 @@
 // agent can list tables, run queries, and inspect project metadata without
 // leaving the editor.
 //
-// Configuration (via env vars, mirrors the PRD example):
+// Configuration (via env vars):
 //
 //   SUBTERRADB_URL          http://localhost:58000/<slug>     (gateway URL)
 //   SUBTERRADB_SERVICE_KEY  eyJhbGciOiJIUzI1NiJ9...           (service_role)
 //   SUBTERRADB_DB_URL       postgresql://...                  (optional, for SQL)
 //
-// Per the PRD, this MCP coexists with the official Supabase MCP — they target
-// different environments (local vs cloud). Tool names mirror the Supabase MCP
-// where possible to minimize friction when switching.
+// This MCP coexists with the official Supabase MCP — they target different
+// environments (local vs cloud). Tool names mirror the Supabase MCP where
+// possible to minimize friction when switching between them.
 
 import { Server } from '@modelcontextprotocol/sdk/server/index.js';
 import { StdioServerTransport } from '@modelcontextprotocol/sdk/server/stdio.js';

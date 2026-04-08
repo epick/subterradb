@@ -28,8 +28,8 @@ export async function GET() {
 // Body: { email, name, role: 'admin' | 'developer', password }
 // Response: 201 { member }
 //
-// Admin only. Creates an active platform user immediately. Once SMTP delivery
-// lands in Phase 2, the role of "password" will switch to a one-time invite link.
+// Admin only. Creates an active platform user immediately. When SMTP delivery
+// is wired up later, the role of "password" will switch to a one-time invite link.
 export async function POST(request: Request) {
   const user = await getCurrentUser();
   if (!user) {

@@ -15,8 +15,8 @@ interface ConnectionCardProps {
 // developer needs to wire their app to this Supabase project.
 // Each row exposes a copy button; sensitive values default to masked.
 //
-// The proxy URL is hard-coded to the Phase 0 dev port (58000). When the GUI
-// gets deployed for real, this should come from a backend-provided value.
+// The proxy URL is hard-coded to the local dev port (58000). For real
+// deployments this should come from a backend-provided value.
 const PROJECT_BASE_URL = 'http://localhost:58000';
 
 export function ConnectionCard({ project }: ConnectionCardProps) {

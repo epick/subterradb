@@ -234,11 +234,8 @@ All runtime configuration lives in `.env` at the repo root. The installer create
 
 ## 🗺 Roadmap
 
-- [x] Phase 0 — Control plane + auth + Kong provisioning
-- [x] Phase 1.5 — Per-project PostgREST + GoTrue containers
-- [x] Phase 2 — In-GUI SQL editor, Table editor (read), Auth manager
-- [x] Phase 3 — Per-project Storage + Realtime, Logs viewer, MCP server, Table editor (write)
-- [x] Production-ready Docker deployment + bootstrap installer
+Things that aren't here yet, in rough priority order:
+
 - [ ] RLS policy editor with assisted UI
 - [ ] ER diagram of every project's schema
 - [ ] Backups + point-in-time restore

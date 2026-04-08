@@ -1,11 +1,11 @@
 -- SubterraDB control plane — initial schema
 -- Run inside the `subterradb_system` database.
 --
--- Tables follow the PRD section 6.6 with a few practical additions:
+-- Notable choices:
 --   - password_hash instead of password (clearer name for the bcrypt hash)
 --   - status column on platform_users to model pending invites
 --   - kong_*_ids columns on projects so we can clean up Kong entities on delete
---   - audit_log for future activity tracking (writes come in Phase 1)
+--   - audit_log for future activity tracking
 
 CREATE EXTENSION IF NOT EXISTS pgcrypto;
 
@@ -79,7 +79,7 @@ CREATE INDEX idx_sessions_user ON platform_sessions (user_id);
 CREATE INDEX idx_sessions_token_hash ON platform_sessions (token_hash);
 CREATE INDEX idx_sessions_expires ON platform_sessions (expires_at);
 
--- Audit log — write-only for now; queryable views land in Phase 1.
+-- Audit log — write-only for now; queryable views are a future addition.
 CREATE TABLE audit_log (
   id           UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   user_id      UUID REFERENCES platform_users (id) ON DELETE SET NULL,

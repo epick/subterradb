@@ -5,6 +5,7 @@ import { AppTopbar } from '@/components/layout/app-topbar';
 import { Button } from '@/components/ui/button';
 import { Link } from '@/i18n/navigation';
 import { ProjectCard } from '@/features/projects/components/project-card';
+import { ProjectsListPoller } from '@/features/projects/components/projects-list-poller';
 import { ProjectsStats } from '@/features/projects/components/projects-stats';
 import { getCurrentUser } from '@/server/auth';
 import { listProjects } from '@/server/projects';
@@ -55,6 +56,9 @@ export default async function ProjectsPage({
               </Button>
             )}
           </header>
+
+          {/* Auto-refreshes the list while any project is provisioning. */}
+          <ProjectsListPoller statuses={projects.map((p) => p.status)} />
 
           <ProjectsStats projects={projects} />
 

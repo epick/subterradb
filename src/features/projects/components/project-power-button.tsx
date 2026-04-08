@@ -27,7 +27,7 @@ export function ProjectPowerButton({ projectId, status }: ProjectPowerButtonProp
       const endpoint = isRunning ? 'stop' : 'start';
       const res = await fetch(`/api/projects/${projectId}/${endpoint}`, { method: 'POST' });
       if (!res.ok) {
-        // Surface the error in the next render — kept simple for Phase 2.
+        // Surface the error in the next render — intentionally simple.
         // eslint-disable-next-line no-console
         console.error('power toggle failed', await res.text());
       }
