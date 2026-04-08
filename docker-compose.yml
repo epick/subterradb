@@ -150,7 +150,17 @@ services:
       SUBTERRADB_ADMIN_PASSWORD: ${SUBTERRADB_ADMIN_PASSWORD:?set SUBTERRADB_ADMIN_PASSWORD in .env — use bin/install.sh to generate one}
       SUBTERRADB_ADMIN_NAME: ${SUBTERRADB_ADMIN_NAME:-SubterraDB Admin}
 
+      # Cookie security flag — keep "false" for plain-HTTP self-host on a LAN.
+      # Set "true" only when SubterraDB is behind a TLS-terminating proxy.
+      SUBTERRADB_SECURE_COOKIES: ${SUBTERRADB_SECURE_COOKIES:-false}
+
       NODE_ENV: production
+    # Add the host's docker group as a supplementary group for the in-container
+    # `nextjs` user, so it can read /var/run/docker.sock. The GID is detected
+    # by bin/install.sh (`getent group docker | cut -d: -f3`) and written to
+    # .env. Falling back to 999 covers the default Debian/Ubuntu install.
+    group_add:
+      - "${DOCKER_GID:-999}"
     volumes:
       # Mount the host's docker socket so the control plane can spawn the
       # per-project postgrest / gotrue / storage / realtime containers via

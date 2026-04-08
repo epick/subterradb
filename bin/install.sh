@@ -155,6 +155,21 @@ if [[ -z "$(read_env POSTGRES_PASSWORD)" ]]; then
   ok "set default POSTGRES_PASSWORD (override in .env for production)"
 fi
 
+# Detect the host's `docker` group GID. The GUI container runs as a non-root
+# user that needs to be in this group to read /var/run/docker.sock — without
+# it, dockerode calls fail with EACCES and project provisioning errors out.
+# We pass the GID to docker compose via .env → group_add in the compose file.
+DOCKER_GID="$(getent group docker 2>/dev/null | cut -d: -f3 || true)"
+if [[ -n "$DOCKER_GID" ]]; then
+  set_env DOCKER_GID "$DOCKER_GID"
+  ok "detected host docker group GID: ${DOCKER_GID}"
+else
+  warn "could not detect host docker group — using fallback GID 999"
+  warn "if project creation fails with EACCES on /var/run/docker.sock,"
+  warn "find the GID with \`getent group docker\` and set DOCKER_GID in .env"
+  set_env DOCKER_GID "999"
+fi
+
 # ----- 3. Build + start the stack --------------------------------------------
 hdr "Building and starting the stack"
 info "This pulls postgres, kong, supabase images and builds the GUI."
