@@ -35,8 +35,6 @@ await supabase.storage.from('avatars').upload('me.png', file);
 const supabase = createClient('https://xyz.supabase.co', PROD_ANON_KEY);
 ```
 
-![Login screen](docs/screenshots/01-login.png)
-
 ---
 
 ## ⚡ Quick start
@@ -62,43 +60,9 @@ When it finishes, open the URL it prints and log in. Done.
 
 ---
 
-## 📸 Screenshots
+## 📸 Screenshot
 
-### Multi-project dashboard
-
-![Dashboard](docs/screenshots/02-dashboard.png)
-
-### Project overview — connection details + quick actions
-
-![Project detail](docs/screenshots/03-project-detail.png)
-
-### Table editor — frozen first column when scrolling wide tables
-
-![Table editor](docs/screenshots/04-table-editor.png)
-
-### Inline cell editor — click any cell, edit in place
-
-![Inline cell editor](docs/screenshots/09-inline-cell-editor.png)
-
-### SQL editor — full Monaco with results
-
-![SQL editor](docs/screenshots/05-sql-editor.png)
-
-### Storage browser — buckets, upload, download, delete
-
-![Storage browser](docs/screenshots/06-storage-browser.png)
-
-### Logs viewer — live tail of every per-project container
-
-![Logs viewer](docs/screenshots/07-logs-viewer.png)
-
-### Gateway view — every Kong route + plugin in real time
-
-![Gateway](docs/screenshots/08-gateway.png)
-
-### MCP config — copy-paste into Cursor / Claude Code / Windsurf
-
-![MCP config card](docs/screenshots/10-mcp-config.png)
+![Multi-project dashboard](docs/screenshots/02-dashboard.png)
 
 ---
 
