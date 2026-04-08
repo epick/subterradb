@@ -1,0 +1,519 @@
+{
+  "common": {
+    "appName": "SubterraDB",
+    "tagline": "Self-hosted Supabase, multi-project.",
+    "loading": "Loading...",
+    "back": "Back",
+    "cancel": "Cancel",
+    "save": "Save",
+    "delete": "Delete",
+    "edit": "Edit",
+    "create": "Create",
+    "search": "Search",
+    "copy": "Copy",
+    "copied": "Copied!",
+    "reveal": "Reveal",
+    "hide": "Hide"
+  },
+  "language": {
+    "label": "Language",
+    "en": "English",
+    "es": "Spanish"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Sign in to SubterraDB",
+      "subtitle": "Manage every Supabase project from a single control plane.",
+      "emailLabel": "Email",
+      "emailPlaceholder": "you@company.com",
+      "passwordLabel": "Password",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "Forgot password?",
+      "submit": "Sign in",
+      "submitting": "Signing in...",
+      "noAccount": "Don't have an account?",
+      "signUpLink": "Request access",
+      "orContinueWith": "or continue with",
+      "rememberMe": "Remember me",
+      "hero": {
+        "kicker": "Self-hosted Supabase",
+        "headline": "One control plane for <accent>every project</accent>.",
+        "subtitle": "Run dozens of isolated Supabase projects on a single server. Same SDK, same RLS, no per-project VMs.",
+        "features": {
+          "multiProject": {
+            "title": "Multi-project Studio",
+            "description": "Manage every project from a single UI."
+          },
+          "lightweight": {
+            "title": "Lightweight footprint",
+            "description": "Around 180 MB of RAM per project."
+          },
+          "dropIn": {
+            "title": "Drop-in compatible",
+            "description": "Same Supabase SDK — only the URL and keys change."
+          }
+        }
+      }
+    },
+    "errors": {
+      "invalidCredentials": "Invalid email or password.",
+      "networkError": "Network error. Please try again.",
+      "emailRequired": "Email is required.",
+      "emailInvalid": "Please enter a valid email address.",
+      "passwordRequired": "Password is required.",
+      "passwordTooShort": "Password must be at least 8 characters."
+    }
+  },
+  "footer": {
+    "copyright": "© {year} SubterraDB. Self-hosted with care.",
+    "version": "Version {version}"
+  },
+  "nav": {
+    "projects": "Projects",
+    "members": "Members",
+    "gateway": "Gateway",
+    "settings": "Settings",
+    "newProject": "New project"
+  },
+  "userMenu": {
+    "profile": "Profile",
+    "settings": "Settings",
+    "signOut": "Sign out",
+    "role": {
+      "admin": "Administrator",
+      "developer": "Developer"
+    }
+  },
+  "projects": {
+    "dashboard": {
+      "title": "Projects",
+      "subtitle": "Every Supabase project on this server, in one place. Spin them up, monitor activity, and jump into any project's Studio.",
+      "newProject": "New project",
+      "allProjects": "All projects",
+      "countLabel": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+      "empty": {
+        "kicker": "Empty",
+        "title": "No projects yet",
+        "description": "This SubterraDB instance is fresh. Create your first project to spin up isolated REST, Auth, Storage, and Realtime endpoints in a few seconds.",
+        "cta": "Create your first project"
+      }
+    },
+    "stats": {
+      "totalProjects": "Total projects",
+      "running": "Running",
+      "stopped": "Stopped",
+      "errored": "Errored"
+    },
+    "card": {
+      "services": "Services",
+      "members": "Members",
+      "ram": "RAM",
+      "apiKeys": "API keys",
+      "owner": "Owner",
+      "lastActivity": "Last activity"
+    },
+    "status": {
+      "running": "Running",
+      "stopped": "Stopped",
+      "provisioning": "Provisioning",
+      "error": "Error"
+    },
+    "new": {
+      "title": "Create a new project",
+      "subtitle": "Set up a new isolated Supabase project on this server. Takes about 30 seconds once you confirm.",
+      "back": "Back to projects",
+      "cancel": "Cancel",
+      "submit": "Create project",
+      "submitting": "Creating...",
+      "errors": {
+        "nameRequired": "Project name is required.",
+        "slugTaken": "A project with this slug already exists. Pick a different one.",
+        "kongFailed": "Failed to provision the gateway routes for this project. Please retry.",
+        "forbidden": "Only administrators can create projects.",
+        "unknown": "Something went wrong. Please try again."
+      },
+      "sections": {
+        "basics": {
+          "title": "Project basics",
+          "subtitle": "Name your project and pick a slug for its services."
+        },
+        "database": {
+          "title": "Database",
+          "subtitle": "Set the password for the project's Postgres database."
+        },
+        "services": {
+          "title": "Enabled services",
+          "subtitle": "Pick which Supabase services this project should run."
+        },
+        "access": {
+          "title": "Initial access",
+          "subtitle": "Optionally invite team members right away."
+        }
+      },
+      "fields": {
+        "name": "Project name",
+        "namePlaceholder": "My amazing project",
+        "slug": "Slug",
+        "slugHelper": "Used as the URL prefix and container suffix. Lowercase, hyphens only.",
+        "dbPassword": "Database password",
+        "dbPasswordHelper": "Stored encrypted on the server. Used internally by the project's services — you'll rarely need to type it again.",
+        "generatePassword": "Generate",
+        "postgrest": "PostgREST",
+        "postgrestHelper": "Auto-generated REST API over your tables.",
+        "auth": "Auth (GoTrue)",
+        "authHelper": "User authentication and JWT issuance.",
+        "storage": "Storage",
+        "storageHelper": "S3-compatible file storage with policies.",
+        "realtime": "Realtime",
+        "realtimeHelper": "WebSocket subscriptions to database changes.",
+        "invites": "Invite team members",
+        "invitesPlaceholder": "alice@company.com, bob@company.com",
+        "invitesHelper": "Comma-separated emails. Each will receive an invite link."
+      }
+    },
+    "quickActions": {
+      "sql": {
+        "title": "SQL Editor",
+        "description": "Run queries against this project's database with full service_role access."
+      },
+      "tables": {
+        "title": "Table Editor",
+        "description": "Browse the public schema, inspect rows, and tweak data without leaving the GUI."
+      },
+      "auth": {
+        "title": "Auth Manager",
+        "description": "Create and manage users in this project's auth schema."
+      },
+      "storage": {
+        "title": "Storage",
+        "description": "Buckets and files served by this project's Storage container."
+      },
+      "logs": {
+        "title": "Logs",
+        "description": "Tail container logs from PostgREST, GoTrue, and Storage in real time."
+      }
+    },
+    "storage": {
+      "breadcrumb": "Storage",
+      "pageTitle": "Storage",
+      "pageSubtitle": "Buckets and objects served by this project's Storage container.",
+      "buckets": "Buckets",
+      "newBucket": "New bucket",
+      "newBucketDescription": "Buckets group related files. Public buckets serve files without auth.",
+      "bucketName": "Bucket name",
+      "bucketNameHelper": "Lowercase letters, numbers and dashes. 3-63 characters.",
+      "makePublic": "Public bucket",
+      "makePublicHelper": "Anyone with the URL can read files in this bucket.",
+      "public": "Public",
+      "private": "Private",
+      "noBuckets": "No buckets yet — create your first one.",
+      "selectBucket": "Pick a bucket on the left to see its objects.",
+      "noObjects": "Empty bucket — upload your first file.",
+      "objectCount": "{count, plural, =0 {empty} one {# object} other {# objects}}",
+      "loading": "Loading...",
+      "upload": "Upload",
+      "uploading": "Uploading...",
+      "create": "Create bucket",
+      "cancel": "Cancel"
+    },
+    "logs": {
+      "breadcrumb": "Logs",
+      "pageTitle": "Logs",
+      "pageSubtitle": "Stream container logs from PostgREST, GoTrue and Storage in real time.",
+      "container": "Container",
+      "tailing": "Tailing",
+      "paused": "Paused",
+      "pause": "Pause",
+      "resume": "Resume",
+      "clear": "Clear",
+      "noLogs": "No log lines yet. They'll appear here as the container produces them."
+    },
+    "sql": {
+      "breadcrumb": "SQL Editor",
+      "pageTitle": "SQL Editor",
+      "pageSubtitle": "Run any SQL against this project's database. Queries execute as service_role inside a transaction — failures roll back automatically.",
+      "title": "Query",
+      "run": "Run query",
+      "running": "Running...",
+      "resultsTitle": "Results",
+      "resultsEmpty": "No query run yet",
+      "resultsMeta": "{count, plural, =0 {0 rows} one {# row} other {# rows}} · {ms}ms",
+      "rowCountOnly": "{count, plural, =0 {0 rows affected} one {# row affected} other {# rows affected}}",
+      "hint": "Hit Run to execute the query above.",
+      "error": "Query failed"
+    },
+    "tables": {
+      "breadcrumb": "Table Editor",
+      "pageTitle": "Table Editor",
+      "pageSubtitle": "Browse and inspect the tables in this project's public schema.",
+      "noTables": "No tables yet — create one from the SQL editor.",
+      "rowCount": "{count, plural, =0 {empty} one {# row} other {# rows}}",
+      "columnCount": "{count, plural, one {# column} other {# columns}}",
+      "loading": "Loading...",
+      "showingRows": "Showing first {count} rows",
+      "actions": "Actions",
+      "insertRow": "Insert row",
+      "insertRowTitle": "Insert row into {table}",
+      "insertRowDescription": "Leave a column blank to use NULL or its default value.",
+      "inserting": "Inserting...",
+      "selectedCount": "{count, plural, one {# row selected} other {# rows selected}}",
+      "deleteSelected": "Delete {count, plural, one {# row} other {# rows}}",
+      "clearSelection": "Clear selection",
+      "value": "value",
+      "emptyForNull": "(blank for NULL)",
+      "cancel": "Cancel",
+      "cell": {
+        "save": "Save",
+        "cancel": "Cancel",
+        "setNull": "Set to NULL",
+        "expand": "Expand",
+        "shrink": "Shrink",
+        "placeholder": "Enter a value",
+        "placeholderNullable": "Enter a value or leave blank for NULL"
+      }
+    },
+    "auth": {
+      "breadcrumb": "Auth",
+      "pageTitle": "Auth Manager",
+      "pageSubtitle": "Manage users in this project's GoTrue auth schema.",
+      "noUsers": "No users yet. The first time someone signs up via the SDK they'll appear here.",
+      "loading": "Loading...",
+      "rowCount": "{count, plural, =0 {0 users} one {# user} other {# users}}",
+      "createUser": "Create user",
+      "cols": {
+        "email": "Email",
+        "created": "Created",
+        "lastSignIn": "Last sign in",
+        "actions": "Actions"
+      },
+      "never": "Never"
+    },
+    "delete": {
+      "trigger": "Delete project",
+      "title": "Delete \"{name}\"?",
+      "description": "This action is irreversible. Everything below will be removed:",
+      "bullets": {
+        "containers": "The postgrest and gotrue containers for this project",
+        "database": "The Postgres database and all of its data",
+        "kong": "All Kong gateway routes and credentials",
+        "keys": "The anon and service_role keys (existing apps will break)"
+      },
+      "confirmLabel": "Type <slug></slug> to confirm.",
+      "cancel": "Cancel",
+      "confirm": "Delete project",
+      "deleting": "Deleting...",
+      "errors": {
+        "projects_forbidden": "Only administrators can delete projects.",
+        "projects_not_found": "Project not found. It may already have been deleted.",
+        "network": "Network error. Please try again.",
+        "unknown": "Something went wrong. Please try again."
+      }
+    },
+    "detail": {
+      "header": {
+        "stop": "Stop",
+        "start": "Start",
+        "settings": "Project settings"
+      },
+      "tabs": {
+        "overview": "Overview",
+        "services": "Services",
+        "apiKeys": "API keys",
+        "database": "Database",
+        "members": "Members",
+        "settings": "Settings"
+      },
+      "stats": {
+        "services": "Services",
+        "apiKeys": "API keys",
+        "members": "Members",
+        "created": "Created"
+      },
+      "comingSoon": {
+        "kicker": "Coming soon",
+        "description": "This panel will be available once the control-plane backend is wired up. The visual layout is locked in — only the data source is missing."
+      }
+    },
+    "connection": {
+      "title": "Connection details",
+      "subtitle": "Drop these into your Supabase client to talk to this project.",
+      "projectUrl": "Project URL",
+      "anonKey": "Anon key",
+      "anonKeyHint": "Public · safe in the browser",
+      "serviceRoleKey": "Service role key",
+      "serviceRoleKeyHint": "Secret · server-side only",
+      "dbUrl": "Database URL",
+      "reveal": "Reveal",
+      "hide": "Hide"
+    },
+    "mcp": {
+      "title": "MCP Server",
+      "subtitle": "Plug this project into Cursor, Claude Code, Windsurf and any MCP-aware editor.",
+      "pasteIn": "Paste this snippet into",
+      "copy": "Copy",
+      "copied": "Copied!",
+      "testTitle": "Test the config from a terminal",
+      "testDescription": "Run this on the same machine that will host the editor — it should print the JSON-RPC tools list.",
+      "shippedNote": "The MCP server lives at <path></path> inside this SubterraDB checkout. To use it from a developer machine that doesn't have SubterraDB cloned, mount or clone the SubterraDB repo locally and update the args path. Publishing to npm is also an option — see packages/mcp-server/README.md."
+    },
+    "services": {
+      "title": "Services",
+      "subtitle": "Per-project containers managed by SubterraDB.",
+      "countLabel": "{count, plural, =0 {No services} one {# service} other {# services}}",
+      "ram": "RAM",
+      "uptime": "Uptime"
+    }
+  },
+  "members": {
+    "page": {
+      "title": "Members",
+      "subtitle": "Everyone with access to this SubterraDB instance. Invite developers and assign them to specific projects, or grant full admin rights.",
+      "invite": "Invite member",
+      "forbidden": {
+        "title": "Admin access required",
+        "description": "Member management is restricted to administrators. Ask one of your admins if you need access to a project."
+      }
+    },
+    "stats": {
+      "total": "Total members",
+      "admins": "Administrators",
+      "developers": "Developers",
+      "pending": "Pending invites"
+    },
+    "role": {
+      "admin": "Admin",
+      "developer": "Developer"
+    },
+    "table": {
+      "title": "All members",
+      "subtitle": "Manage roles and project assignments.",
+      "countLabel": "{count, plural, =0 {No members} one {# member} other {# members}}",
+      "actions": "Member actions",
+      "allProjects": "All projects",
+      "projectsCount": "{count, plural, =0 {No projects} one {# project} other {# projects}}",
+      "cols": {
+        "user": "User",
+        "role": "Role",
+        "projects": "Projects",
+        "lastActive": "Last active",
+        "joined": "Joined"
+      },
+      "status": {
+        "pending": "Pending"
+      }
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "Settings",
+      "subtitle": "Configure how this SubterraDB instance behaves. These settings apply to every project."
+    },
+    "save": "Save changes",
+    "nav": {
+      "general": "General",
+      "security": "Security",
+      "network": "Network",
+      "backups": "Backups",
+      "integrations": "Integrations",
+      "dangerZone": "Danger zone"
+    },
+    "comingSoon": {
+      "kicker": "Coming soon",
+      "description": "This panel will be available once the control-plane backend is wired up. The visual layout is locked in — only the data source is missing."
+    },
+    "general": {
+      "title": "General",
+      "subtitle": "Basic instance information visible to every member.",
+      "instanceName": {
+        "label": "Instance name",
+        "helper": "Shown in the browser title and emails sent by SubterraDB."
+      },
+      "defaultLocale": {
+        "label": "Default language",
+        "helper": "Used for new members until they pick their own."
+      },
+      "timezone": {
+        "label": "Timezone",
+        "helper": "Affects how timestamps are displayed across the app."
+      }
+    },
+    "security": {
+      "title": "Security",
+      "subtitle": "Authentication and session policies for the control plane.",
+      "sessionTimeout": {
+        "label": "Session timeout (minutes)",
+        "helper": "Members are signed out after this many minutes of inactivity."
+      },
+      "minPasswordLength": {
+        "label": "Minimum password length",
+        "helper": "Members will be prompted to update if their password is shorter."
+      },
+      "mfaRequired": {
+        "label": "Require MFA for admins",
+        "helper": "Administrators must set up an authenticator app on next sign-in."
+      }
+    },
+    "network": {
+      "title": "Network",
+      "subtitle": "How the Kong gateway exposes per-project services.",
+      "gatewayHost": {
+        "label": "Gateway hostname",
+        "helper": "Public hostname Kong listens on. Project URLs use this as a prefix."
+      },
+      "portRange": {
+        "label": "Project port range",
+        "helper": "TCP port range allocated to per-project containers."
+      },
+      "tlsEnabled": {
+        "label": "Enable TLS",
+        "helper": "Terminate HTTPS at the gateway with the configured certificate."
+      }
+    },
+    "dangerZone": {
+      "title": "Danger zone",
+      "subtitle": "Irreversible actions. Read carefully before clicking.",
+      "exportData": {
+        "label": "Export all project data",
+        "description": "Bundle every project's database into a single archive.",
+        "action": "Export"
+      },
+      "reset": {
+        "label": "Reset SubterraDB",
+        "description": "Stop and remove every project. Members and audit logs are kept.",
+        "action": "Reset"
+      },
+      "factoryReset": {
+        "label": "Factory reset",
+        "description": "Wipe everything: projects, members, audit logs. Cannot be undone.",
+        "action": "Factory reset"
+      }
+    }
+  },
+  "gateway": {
+    "page": {
+      "title": "Gateway",
+      "subtitle": "Live view of the Kong gateway. Every per-project service routes through here.",
+      "healthy": "Kong healthy",
+      "unreachable": "Kong unreachable",
+      "openAdminApi": "Open Admin API"
+    },
+    "stats": {
+      "services": "Services",
+      "routes": "Routes",
+      "plugins": "Active plugins",
+      "requests": "Requests / hour"
+    },
+    "routes": {
+      "title": "Registered routes",
+      "subtitle": "Every project + service combination registered with Kong's Admin API.",
+      "countLabel": "{count, plural, =0 {No routes} one {# route} other {# routes}}",
+      "cols": {
+        "project": "Project",
+        "path": "Path",
+        "upstream": "Upstream",
+        "plugins": "Plugins",
+        "lastSeen": "Last seen"
+      }
+    }
+  }
+}

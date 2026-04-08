@@ -1,0 +1,519 @@
+{
+  "common": {
+    "appName": "SubterraDB",
+    "tagline": "Supabase self-hosted, multi-proyecto.",
+    "loading": "Cargando...",
+    "back": "Atrás",
+    "cancel": "Cancelar",
+    "save": "Guardar",
+    "delete": "Eliminar",
+    "edit": "Editar",
+    "create": "Crear",
+    "search": "Buscar",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "reveal": "Mostrar",
+    "hide": "Ocultar"
+  },
+  "language": {
+    "label": "Idioma",
+    "en": "Inglés",
+    "es": "Español"
+  },
+  "auth": {
+    "signIn": {
+      "title": "Inicia sesión en SubterraDB",
+      "subtitle": "Gestiona todos tus proyectos Supabase desde un solo panel.",
+      "emailLabel": "Correo electrónico",
+      "emailPlaceholder": "tu@empresa.com",
+      "passwordLabel": "Contraseña",
+      "passwordPlaceholder": "••••••••",
+      "forgotPassword": "¿Olvidaste tu contraseña?",
+      "submit": "Iniciar sesión",
+      "submitting": "Iniciando sesión...",
+      "noAccount": "¿No tienes cuenta?",
+      "signUpLink": "Solicitar acceso",
+      "orContinueWith": "o continúa con",
+      "rememberMe": "Recuérdame",
+      "hero": {
+        "kicker": "Supabase self-hosted",
+        "headline": "Un panel de control para <accent>cada proyecto</accent>.",
+        "subtitle": "Corre docenas de proyectos Supabase aislados en un solo servidor. El mismo SDK, las mismas RLS, sin una VM por proyecto.",
+        "features": {
+          "multiProject": {
+            "title": "Studio multi-proyecto",
+            "description": "Gestiona todos tus proyectos desde una sola interfaz."
+          },
+          "lightweight": {
+            "title": "Huella ligera",
+            "description": "Alrededor de 180 MB de RAM por proyecto."
+          },
+          "dropIn": {
+            "title": "Compatibilidad directa",
+            "description": "El mismo SDK de Supabase: solo cambian la URL y las llaves."
+          }
+        }
+      }
+    },
+    "errors": {
+      "invalidCredentials": "Correo o contraseña inválidos.",
+      "networkError": "Error de red. Intenta de nuevo.",
+      "emailRequired": "El correo es obligatorio.",
+      "emailInvalid": "Introduce un correo válido.",
+      "passwordRequired": "La contraseña es obligatoria.",
+      "passwordTooShort": "La contraseña debe tener al menos 8 caracteres."
+    }
+  },
+  "footer": {
+    "copyright": "© {year} SubterraDB. Self-hosted con cariño.",
+    "version": "Versión {version}"
+  },
+  "nav": {
+    "projects": "Proyectos",
+    "members": "Miembros",
+    "gateway": "Gateway",
+    "settings": "Configuración",
+    "newProject": "Nuevo proyecto"
+  },
+  "userMenu": {
+    "profile": "Perfil",
+    "settings": "Configuración",
+    "signOut": "Cerrar sesión",
+    "role": {
+      "admin": "Administrador",
+      "developer": "Desarrollador"
+    }
+  },
+  "projects": {
+    "dashboard": {
+      "title": "Proyectos",
+      "subtitle": "Todos los proyectos Supabase de este servidor, en un solo lugar. Levántalos, monitorea actividad, y entra al Studio de cualquier proyecto.",
+      "newProject": "Nuevo proyecto",
+      "allProjects": "Todos los proyectos",
+      "countLabel": "{count, plural, =0 {Sin proyectos} one {# proyecto} other {# proyectos}}",
+      "empty": {
+        "kicker": "Vacío",
+        "title": "Aún no hay proyectos",
+        "description": "Esta instancia de SubterraDB está limpia. Crea tu primer proyecto para levantar endpoints REST, Auth, Storage y Realtime aislados en unos segundos.",
+        "cta": "Crear tu primer proyecto"
+      }
+    },
+    "stats": {
+      "totalProjects": "Proyectos totales",
+      "running": "En ejecución",
+      "stopped": "Detenidos",
+      "errored": "Con errores"
+    },
+    "card": {
+      "services": "Servicios",
+      "members": "Miembros",
+      "ram": "RAM",
+      "apiKeys": "API keys",
+      "owner": "Dueño",
+      "lastActivity": "Última actividad"
+    },
+    "status": {
+      "running": "En ejecución",
+      "stopped": "Detenido",
+      "provisioning": "Aprovisionando",
+      "error": "Error"
+    },
+    "new": {
+      "title": "Crear un nuevo proyecto",
+      "subtitle": "Levanta un nuevo proyecto Supabase aislado en este servidor. Tarda unos 30 segundos al confirmar.",
+      "back": "Volver a proyectos",
+      "cancel": "Cancelar",
+      "submit": "Crear proyecto",
+      "submitting": "Creando...",
+      "errors": {
+        "nameRequired": "El nombre del proyecto es obligatorio.",
+        "slugTaken": "Ya existe un proyecto con ese slug. Elige uno diferente.",
+        "kongFailed": "No se pudieron registrar las rutas en el gateway. Reintenta.",
+        "forbidden": "Solo los administradores pueden crear proyectos.",
+        "unknown": "Algo salió mal. Intenta de nuevo."
+      },
+      "sections": {
+        "basics": {
+          "title": "Información básica",
+          "subtitle": "Nombra tu proyecto y elige un slug para sus servicios."
+        },
+        "database": {
+          "title": "Base de datos",
+          "subtitle": "Define la contraseña para la base de datos Postgres del proyecto."
+        },
+        "services": {
+          "title": "Servicios habilitados",
+          "subtitle": "Elige qué servicios de Supabase debe correr este proyecto."
+        },
+        "access": {
+          "title": "Acceso inicial",
+          "subtitle": "Invita a tu equipo desde el inicio (opcional)."
+        }
+      },
+      "fields": {
+        "name": "Nombre del proyecto",
+        "namePlaceholder": "Mi proyecto increíble",
+        "slug": "Slug",
+        "slugHelper": "Se usa como prefijo en la URL y sufijo de los contenedores. Minúsculas y guiones.",
+        "dbPassword": "Contraseña de la base de datos",
+        "dbPasswordHelper": "Se guarda encriptada en el servidor. La usan internamente los servicios del proyecto — rara vez la tendrás que volver a escribir.",
+        "generatePassword": "Generar",
+        "postgrest": "PostgREST",
+        "postgrestHelper": "API REST autogenerada sobre tus tablas.",
+        "auth": "Auth (GoTrue)",
+        "authHelper": "Autenticación de usuarios y emisión de JWT.",
+        "storage": "Storage",
+        "storageHelper": "Almacenamiento de archivos compatible con S3 y políticas.",
+        "realtime": "Realtime",
+        "realtimeHelper": "Suscripciones WebSocket a cambios en la base de datos.",
+        "invites": "Invitar al equipo",
+        "invitesPlaceholder": "alice@empresa.com, bob@empresa.com",
+        "invitesHelper": "Correos separados por coma. Cada uno recibirá un enlace de invitación."
+      }
+    },
+    "quickActions": {
+      "sql": {
+        "title": "Editor SQL",
+        "description": "Corre queries contra la base de datos del proyecto con acceso service_role."
+      },
+      "tables": {
+        "title": "Editor de tablas",
+        "description": "Navega el schema public, inspecciona filas y modifica datos sin salir de la GUI."
+      },
+      "auth": {
+        "title": "Auth Manager",
+        "description": "Crea y gestiona los usuarios del schema auth de este proyecto."
+      },
+      "storage": {
+        "title": "Storage",
+        "description": "Buckets y archivos servidos por el contenedor Storage del proyecto."
+      },
+      "logs": {
+        "title": "Logs",
+        "description": "Tail en vivo de los logs de PostgREST, GoTrue y Storage."
+      }
+    },
+    "storage": {
+      "breadcrumb": "Storage",
+      "pageTitle": "Storage",
+      "pageSubtitle": "Buckets y objetos servidos por el contenedor Storage del proyecto.",
+      "buckets": "Buckets",
+      "newBucket": "Nuevo bucket",
+      "newBucketDescription": "Los buckets agrupan archivos. Los públicos sirven sin autenticación.",
+      "bucketName": "Nombre del bucket",
+      "bucketNameHelper": "Minúsculas, números y guiones. 3-63 caracteres.",
+      "makePublic": "Bucket público",
+      "makePublicHelper": "Cualquiera con la URL puede leer los archivos del bucket.",
+      "public": "Público",
+      "private": "Privado",
+      "noBuckets": "Aún no hay buckets — crea el primero.",
+      "selectBucket": "Elige un bucket a la izquierda para ver sus objetos.",
+      "noObjects": "Bucket vacío — sube tu primer archivo.",
+      "objectCount": "{count, plural, =0 {vacío} one {# objeto} other {# objetos}}",
+      "loading": "Cargando...",
+      "upload": "Subir",
+      "uploading": "Subiendo...",
+      "create": "Crear bucket",
+      "cancel": "Cancelar"
+    },
+    "logs": {
+      "breadcrumb": "Logs",
+      "pageTitle": "Logs",
+      "pageSubtitle": "Tail en vivo de los logs de los contenedores PostgREST, GoTrue y Storage.",
+      "container": "Contenedor",
+      "tailing": "En vivo",
+      "paused": "Pausado",
+      "pause": "Pausar",
+      "resume": "Reanudar",
+      "clear": "Limpiar",
+      "noLogs": "Aún no hay líneas. Aparecerán aquí conforme el contenedor las produzca."
+    },
+    "sql": {
+      "breadcrumb": "Editor SQL",
+      "pageTitle": "Editor SQL",
+      "pageSubtitle": "Corre cualquier SQL contra la base de datos del proyecto. Las queries se ejecutan como service_role dentro de una transacción — los errores hacen rollback automático.",
+      "title": "Query",
+      "run": "Ejecutar",
+      "running": "Ejecutando...",
+      "resultsTitle": "Resultados",
+      "resultsEmpty": "Sin queries ejecutadas",
+      "resultsMeta": "{count, plural, =0 {0 filas} one {# fila} other {# filas}} · {ms}ms",
+      "rowCountOnly": "{count, plural, =0 {0 filas afectadas} one {# fila afectada} other {# filas afectadas}}",
+      "hint": "Presiona Ejecutar para correr la query.",
+      "error": "La query falló"
+    },
+    "tables": {
+      "breadcrumb": "Editor de tablas",
+      "pageTitle": "Editor de tablas",
+      "pageSubtitle": "Navega e inspecciona las tablas del schema public de este proyecto.",
+      "noTables": "Aún no hay tablas — crea una desde el editor SQL.",
+      "rowCount": "{count, plural, =0 {vacía} one {# fila} other {# filas}}",
+      "columnCount": "{count, plural, one {# columna} other {# columnas}}",
+      "loading": "Cargando...",
+      "showingRows": "Mostrando las primeras {count} filas",
+      "actions": "Acciones",
+      "insertRow": "Insertar fila",
+      "insertRowTitle": "Insertar fila en {table}",
+      "insertRowDescription": "Deja una columna en blanco para usar NULL o su valor por defecto.",
+      "inserting": "Insertando...",
+      "selectedCount": "{count, plural, one {# fila seleccionada} other {# filas seleccionadas}}",
+      "deleteSelected": "Eliminar {count, plural, one {# fila} other {# filas}}",
+      "clearSelection": "Limpiar selección",
+      "value": "valor",
+      "emptyForNull": "(vacío para NULL)",
+      "cancel": "Cancelar",
+      "cell": {
+        "save": "Guardar",
+        "cancel": "Cancelar",
+        "setNull": "Set NULL",
+        "expand": "Expandir",
+        "shrink": "Reducir",
+        "placeholder": "Escribe un valor",
+        "placeholderNullable": "Escribe un valor o deja vacío para NULL"
+      }
+    },
+    "auth": {
+      "breadcrumb": "Auth",
+      "pageTitle": "Auth Manager",
+      "pageSubtitle": "Gestiona los usuarios del schema auth (GoTrue) de este proyecto.",
+      "noUsers": "Aún no hay usuarios. La primera vez que alguien se registre vía SDK aparecerá aquí.",
+      "loading": "Cargando...",
+      "rowCount": "{count, plural, =0 {0 usuarios} one {# usuario} other {# usuarios}}",
+      "createUser": "Crear usuario",
+      "cols": {
+        "email": "Correo",
+        "created": "Creado",
+        "lastSignIn": "Último login",
+        "actions": "Acciones"
+      },
+      "never": "Nunca"
+    },
+    "delete": {
+      "trigger": "Eliminar proyecto",
+      "title": "¿Eliminar \"{name}\"?",
+      "description": "Esta acción es irreversible. Todo lo siguiente se eliminará:",
+      "bullets": {
+        "containers": "Los contenedores postgrest y gotrue de este proyecto",
+        "database": "La base de datos Postgres y todos sus datos",
+        "kong": "Todas las rutas y credenciales en el gateway Kong",
+        "keys": "Las llaves anon y service_role (las apps que las usen dejarán de funcionar)"
+      },
+      "confirmLabel": "Escribe <slug></slug> para confirmar.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar proyecto",
+      "deleting": "Eliminando...",
+      "errors": {
+        "projects_forbidden": "Solo los administradores pueden eliminar proyectos.",
+        "projects_not_found": "Proyecto no encontrado. Puede que ya se haya eliminado.",
+        "network": "Error de red. Intenta de nuevo.",
+        "unknown": "Algo salió mal. Intenta de nuevo."
+      }
+    },
+    "detail": {
+      "header": {
+        "stop": "Detener",
+        "start": "Iniciar",
+        "settings": "Configuración del proyecto"
+      },
+      "tabs": {
+        "overview": "Resumen",
+        "services": "Servicios",
+        "apiKeys": "API keys",
+        "database": "Base de datos",
+        "members": "Miembros",
+        "settings": "Configuración"
+      },
+      "stats": {
+        "services": "Servicios",
+        "apiKeys": "API keys",
+        "members": "Miembros",
+        "created": "Creado"
+      },
+      "comingSoon": {
+        "kicker": "Próximamente",
+        "description": "Esta sección estará disponible cuando conectemos el backend del control-plane. El diseño visual ya está listo — solo falta la fuente de datos."
+      }
+    },
+    "connection": {
+      "title": "Detalles de conexión",
+      "subtitle": "Pega estos valores en tu cliente Supabase para hablar con este proyecto.",
+      "projectUrl": "URL del proyecto",
+      "anonKey": "Anon key",
+      "anonKeyHint": "Pública · segura en el navegador",
+      "serviceRoleKey": "Service role key",
+      "serviceRoleKeyHint": "Secreta · solo en servidor",
+      "dbUrl": "URL de la base de datos",
+      "reveal": "Mostrar",
+      "hide": "Ocultar"
+    },
+    "mcp": {
+      "title": "Servidor MCP",
+      "subtitle": "Conecta este proyecto a Cursor, Claude Code, Windsurf y cualquier editor compatible con MCP.",
+      "pasteIn": "Pega este snippet en",
+      "copy": "Copiar",
+      "copied": "¡Copiado!",
+      "testTitle": "Prueba la configuración desde una terminal",
+      "testDescription": "Córrelo en la misma máquina donde correrá el editor — debe imprimir la lista de tools en JSON-RPC.",
+      "shippedNote": "El servidor MCP vive en <path></path> dentro de este checkout de SubterraDB. Para usarlo desde una máquina de developer que no tiene el repo, clona o monta el repo de SubterraDB localmente y actualiza el path en args. Publicar a npm también es opción — ver packages/mcp-server/README.md."
+    },
+    "services": {
+      "title": "Servicios",
+      "subtitle": "Contenedores por proyecto gestionados por SubterraDB.",
+      "countLabel": "{count, plural, =0 {Sin servicios} one {# servicio} other {# servicios}}",
+      "ram": "RAM",
+      "uptime": "Tiempo activo"
+    }
+  },
+  "members": {
+    "page": {
+      "title": "Miembros",
+      "subtitle": "Todos los que tienen acceso a esta instancia de SubterraDB. Invita desarrolladores y asígnales proyectos específicos, o dales acceso total como administradores.",
+      "invite": "Invitar miembro",
+      "forbidden": {
+        "title": "Se requiere acceso de administrador",
+        "description": "La gestión de miembros está restringida a los administradores. Pídele acceso a uno de tus admins si necesitas entrar a un proyecto."
+      }
+    },
+    "stats": {
+      "total": "Miembros totales",
+      "admins": "Administradores",
+      "developers": "Desarrolladores",
+      "pending": "Invitaciones pendientes"
+    },
+    "role": {
+      "admin": "Administrador",
+      "developer": "Desarrollador"
+    },
+    "table": {
+      "title": "Todos los miembros",
+      "subtitle": "Gestiona roles y proyectos asignados.",
+      "countLabel": "{count, plural, =0 {Sin miembros} one {# miembro} other {# miembros}}",
+      "actions": "Acciones del miembro",
+      "allProjects": "Todos los proyectos",
+      "projectsCount": "{count, plural, =0 {Sin proyectos} one {# proyecto} other {# proyectos}}",
+      "cols": {
+        "user": "Usuario",
+        "role": "Rol",
+        "projects": "Proyectos",
+        "lastActive": "Última actividad",
+        "joined": "Se unió"
+      },
+      "status": {
+        "pending": "Pendiente"
+      }
+    }
+  },
+  "settings": {
+    "page": {
+      "title": "Configuración",
+      "subtitle": "Configura cómo se comporta esta instancia de SubterraDB. Estos ajustes aplican a todos los proyectos."
+    },
+    "save": "Guardar cambios",
+    "nav": {
+      "general": "General",
+      "security": "Seguridad",
+      "network": "Red",
+      "backups": "Respaldos",
+      "integrations": "Integraciones",
+      "dangerZone": "Zona de peligro"
+    },
+    "comingSoon": {
+      "kicker": "Próximamente",
+      "description": "Esta sección estará disponible cuando conectemos el backend del control-plane. El diseño visual ya está listo — solo falta la fuente de datos."
+    },
+    "general": {
+      "title": "General",
+      "subtitle": "Información básica de la instancia visible para todos los miembros.",
+      "instanceName": {
+        "label": "Nombre de la instancia",
+        "helper": "Se muestra en el título del navegador y en los correos enviados por SubterraDB."
+      },
+      "defaultLocale": {
+        "label": "Idioma por defecto",
+        "helper": "Se usa para los miembros nuevos hasta que elijan el suyo."
+      },
+      "timezone": {
+        "label": "Zona horaria",
+        "helper": "Afecta cómo se muestran los timestamps en toda la app."
+      }
+    },
+    "security": {
+      "title": "Seguridad",
+      "subtitle": "Políticas de autenticación y sesión para el control-plane.",
+      "sessionTimeout": {
+        "label": "Tiempo de sesión (minutos)",
+        "helper": "Los miembros cierran sesión tras este tiempo de inactividad."
+      },
+      "minPasswordLength": {
+        "label": "Longitud mínima de contraseña",
+        "helper": "Si la contraseña es más corta, los miembros tendrán que actualizarla."
+      },
+      "mfaRequired": {
+        "label": "Exigir MFA a los administradores",
+        "helper": "Los administradores deben configurar una app autenticadora en el próximo login."
+      }
+    },
+    "network": {
+      "title": "Red",
+      "subtitle": "Cómo expone Kong los servicios de cada proyecto.",
+      "gatewayHost": {
+        "label": "Hostname del gateway",
+        "helper": "Hostname público en el que escucha Kong. Las URLs de proyecto usan este prefijo."
+      },
+      "portRange": {
+        "label": "Rango de puertos para proyectos",
+        "helper": "Rango TCP asignado a los contenedores por proyecto."
+      },
+      "tlsEnabled": {
+        "label": "Habilitar TLS",
+        "helper": "Terminar HTTPS en el gateway con el certificado configurado."
+      }
+    },
+    "dangerZone": {
+      "title": "Zona de peligro",
+      "subtitle": "Acciones irreversibles. Lee con atención antes de hacer clic.",
+      "exportData": {
+        "label": "Exportar todos los datos",
+        "description": "Empaqueta la base de datos de cada proyecto en un solo archivo.",
+        "action": "Exportar"
+      },
+      "reset": {
+        "label": "Reiniciar SubterraDB",
+        "description": "Detiene y elimina todos los proyectos. Miembros y logs de auditoría se conservan.",
+        "action": "Reiniciar"
+      },
+      "factoryReset": {
+        "label": "Reseteo de fábrica",
+        "description": "Borra todo: proyectos, miembros, logs de auditoría. No se puede deshacer.",
+        "action": "Reseteo de fábrica"
+      }
+    }
+  },
+  "gateway": {
+    "page": {
+      "title": "Gateway",
+      "subtitle": "Vista en vivo del gateway Kong. Todos los servicios de cada proyecto pasan por aquí.",
+      "healthy": "Kong saludable",
+      "unreachable": "Kong inaccesible",
+      "openAdminApi": "Abrir Admin API"
+    },
+    "stats": {
+      "services": "Servicios",
+      "routes": "Rutas",
+      "plugins": "Plugins activos",
+      "requests": "Peticiones / hora"
+    },
+    "routes": {
+      "title": "Rutas registradas",
+      "subtitle": "Cada combinación de proyecto + servicio registrada en la Admin API de Kong.",
+      "countLabel": "{count, plural, =0 {Sin rutas} one {# ruta} other {# rutas}}",
+      "cols": {
+        "project": "Proyecto",
+        "path": "Ruta",
+        "upstream": "Upstream",
+        "plugins": "Plugins",
+        "lastSeen": "Última actividad"
+      }
+    }
+  }
+}

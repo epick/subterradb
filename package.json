@@ -1,0 +1,63 @@
+{
+  "name": "subterradb",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Self-hosted Supabase, multi-project. SubterraDB lets a single VM run dozens of isolated Supabase projects with the same SDK developers already use.",
+  "license": "MIT",
+  "homepage": "https://github.com/epick/subterradb",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/epick/subterradb.git"
+  },
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint",
+    "mcp:build": "cd packages/mcp-server && npm install && npm run build"
+  },
+  "dependencies": {
+    "@monaco-editor/react": "^4.7.0",
+    "@radix-ui/react-avatar": "^1.1.11",
+    "@radix-ui/react-checkbox": "^1.3.3",
+    "@radix-ui/react-dialog": "^1.1.15",
+    "@radix-ui/react-dropdown-menu": "^2.1.16",
+    "@radix-ui/react-label": "^2.1.8",
+    "@radix-ui/react-popover": "^1.1.15",
+    "@radix-ui/react-select": "^2.2.6",
+    "@radix-ui/react-separator": "^1.1.8",
+    "@radix-ui/react-slot": "^1.2.4",
+    "@radix-ui/react-switch": "^1.2.6",
+    "@radix-ui/react-tabs": "^1.1.13",
+    "@radix-ui/react-tooltip": "^1.2.8",
+    "@supabase/ssr": "^0.6.0",
+    "@supabase/supabase-js": "^2.102.1",
+    "bcryptjs": "^3.0.3",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dockerode": "^4.0.10",
+    "jose": "^6.2.2",
+    "lucide-react": "^1.7.0",
+    "next": "^16.0.0",
+    "next-intl": "^4.9.0",
+    "pg": "^8.20.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwind-merge": "^3.5.0",
+    "tw-animate-css": "^1.4.0"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.0.0",
+    "@types/bcryptjs": "^2.4.6",
+    "@types/dockerode": "^4.0.1",
+    "@types/node": "^22.0.0",
+    "@types/pg": "^8.20.0",
+    "@types/react": "^19.0.0",
+    "@types/react-dom": "^19.0.0",
+    "eslint": "^9.0.0",
+    "eslint-config-next": "^16.0.0",
+    "playwright": "^1.59.1",
+    "tailwindcss": "^4.0.0",
+    "typescript": "^5.7.0"
+  }
+}

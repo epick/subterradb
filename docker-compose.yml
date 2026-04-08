@@ -1,0 +1,171 @@
+name: subterradb
+
+# =============================================================================
+# SubterraDB stack — production-ready docker compose
+# =============================================================================
+#
+# Services (always running):
+#   postgres            — single instance hosting kong + subterradb_system + per-project DBs
+#   kong-migrations     — one-shot bootstrap of Kong's schema in the `kong` database
+#   kong                — v3.7.1 in DB mode, exposes proxy + Admin API
+#   subterradb-gui      — the Next.js GUI + bundled MCP server
+#   upstream-placeholder— httpbin used as a stub upstream for Storage/Realtime gateway
+#                          routes when no per-project container is available
+#
+# Per-project containers (postgrest_{slug}, gotrue_{slug}, storage_{slug},
+# realtime_{slug}) are NOT in this file — they're spawned dynamically by the
+# control plane via dockerode and attached to the `subterradb_default` network.
+#
+# All ports use the 5xxxx range so they don't collide with anything else on
+# the host.
+
+services:
+  # ---------------------------------------------------------------------------
+  # Postgres — control plane DB + Kong DB + per-project DBs
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: subterradb-postgres
+    # Logical replication is required by Supabase Realtime, which subscribes
+    # to the WAL via the `supabase_realtime` publication. Bumping
+    # max_wal_senders + max_replication_slots gives headroom for ~10 projects.
+    command:
+      - postgres
+      - -c
+      - wal_level=logical
+      - -c
+      - max_wal_senders=10
+      - -c
+      - max_replication_slots=10
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      POSTGRES_DB: postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      # /docker-entrypoint-initdb.d runs *.sql files in alphabetical order on
+      # first boot. Our 01-create-databases.sql + 02-subterradb-system-schema.sql
+      # leave the cluster ready before any other service connects.
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "55432:5432"
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres"]
+      interval: 3s
+      timeout: 3s
+      retries: 15
+
+  # ---------------------------------------------------------------------------
+  # Kong gateway — DB mode
+  # ---------------------------------------------------------------------------
+  kong-migrations:
+    image: kong:3.7.1
+    container_name: subterradb-kong-migrations
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: postgres
+      KONG_PG_USER: postgres
+      KONG_PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      KONG_PG_DATABASE: kong
+    command: kong migrations bootstrap
+    restart: on-failure
+
+  kong:
+    image: kong:3.7.1
+    container_name: subterradb-kong
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kong-migrations:
+        condition: service_completed_successfully
+    environment:
+      KONG_DATABASE: postgres
+      KONG_PG_HOST: postgres
+      KONG_PG_USER: postgres
+      KONG_PG_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+      KONG_PG_DATABASE: kong
+      KONG_PROXY_ACCESS_LOG: /dev/stdout
+      KONG_ADMIN_ACCESS_LOG: /dev/stdout
+      KONG_PROXY_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_ERROR_LOG: /dev/stderr
+      KONG_ADMIN_LISTEN: "0.0.0.0:8001"
+      KONG_PROXY_LISTEN: "0.0.0.0:8000"
+      KONG_PLUGINS: "bundled"
+    ports:
+      - "58000:8000"   # public proxy — what developers' SDKs hit
+      - "58001:8001"   # admin API — only used internally by the GUI
+    healthcheck:
+      test: ["CMD", "kong", "health"]
+      interval: 5s
+      timeout: 5s
+      retries: 15
+
+  # ---------------------------------------------------------------------------
+  # Shared placeholder upstream
+  # ---------------------------------------------------------------------------
+  # Every per-project Kong route forwards here when no real upstream container
+  # is available (e.g. during the brief provisioning window, or for service
+  # types we haven't wired up yet).
+  upstream-placeholder:
+    image: kennethreitz/httpbin
+    container_name: subterradb-upstream
+    restart: unless-stopped
+
+  # ---------------------------------------------------------------------------
+  # SubterraDB GUI — Next.js + bundled MCP server
+  # ---------------------------------------------------------------------------
+  subterradb-gui:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: subterradb-gui:local
+    container_name: subterradb-gui
+    depends_on:
+      postgres:
+        condition: service_healthy
+      kong:
+        condition: service_healthy
+    environment:
+      # ---- Internal connection strings (use docker network names) ----
+      # The GUI talks to postgres / kong over the docker network, NOT through
+      # the published host ports.
+      SUBTERRADB_DATABASE_URL: postgresql://postgres:${POSTGRES_PASSWORD:-postgres}@postgres:5432/subterradb_system
+      KONG_ADMIN_URL: http://kong:8001
+      KONG_UPSTREAM_PLACEHOLDER: http://upstream-placeholder/anything
+
+      # ---- Public URLs (shown to users in the GUI) ----
+      # These are what gets pasted into the developer's SDK config and into
+      # the MCP card. Set them to the externally-reachable host:port via
+      # .env when deploying on a real server.
+      KONG_PROXY_URL: ${KONG_PROXY_URL:-http://localhost:58000}
+      SUBTERRADB_PUBLIC_DB_HOST: ${SUBTERRADB_PUBLIC_DB_HOST:-localhost}
+      SUBTERRADB_PUBLIC_DB_PORT: ${SUBTERRADB_PUBLIC_DB_PORT:-55432}
+
+      # ---- Auth ----
+      SUBTERRADB_JWT_SECRET: ${SUBTERRADB_JWT_SECRET:?set SUBTERRADB_JWT_SECRET in .env — use bin/install.sh to generate one}
+      SUBTERRADB_ADMIN_EMAIL: ${SUBTERRADB_ADMIN_EMAIL:-admin@subterra.local}
+      SUBTERRADB_ADMIN_PASSWORD: ${SUBTERRADB_ADMIN_PASSWORD:?set SUBTERRADB_ADMIN_PASSWORD in .env — use bin/install.sh to generate one}
+      SUBTERRADB_ADMIN_NAME: ${SUBTERRADB_ADMIN_NAME:-SubterraDB Admin}
+
+      NODE_ENV: production
+    volumes:
+      # Mount the host's docker socket so the control plane can spawn the
+      # per-project postgrest / gotrue / storage / realtime containers via
+      # dockerode. This is the standard pattern for orchestrators-in-containers
+      # (Portainer, Watchtower, etc.).
+      - /var/run/docker.sock:/var/run/docker.sock
+    ports:
+      - "3000:3000"
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 40s
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
