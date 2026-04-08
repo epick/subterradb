@@ -100,7 +100,13 @@ export async function setSessionCookie(token: string, expiresAt: Date): Promise<
   cookieStore.set(SESSION_COOKIE, token, {
     httpOnly: true,
     sameSite: 'lax',
-    secure: process.env.NODE_ENV === 'production',
+    // SubterraDB is typically self-hosted on a private LAN over plain HTTP,
+    // so the cookie must NOT carry the Secure flag by default — browsers
+    // refuse to store Secure cookies on http:// connections, which would
+    // make login appear to succeed but leave the user stuck on the form.
+    // Operators putting SubterraDB behind a TLS-terminating reverse proxy
+    // can opt in by setting SUBTERRADB_SECURE_COOKIES=true.
+    secure: process.env.SUBTERRADB_SECURE_COOKIES === 'true',
     path: '/',
     expires: expiresAt,
   });
