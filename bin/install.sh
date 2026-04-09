@@ -154,21 +154,40 @@ else
   ok "SUBTERRADB_ADMIN_PASSWORD already set — keeping existing value"
 fi
 
-# Detect public host (for the connection URLs shown in the GUI). The user
-# can override this in .env to set a domain name or LAN IP.
+# Detect public host (for the connection URLs shown in the GUI). The values
+# the GUI shows in the Connection Card and MCP card need to be reachable
+# from a developer's laptop, NOT from the host itself — so `localhost` is
+# almost always wrong. We auto-detect when:
+#   - the value is empty (fresh install, .env.example ships it commented)
+#   - the value is the literal string `localhost` (legacy default from older
+#     .env.example files; treat it as a sentinel "needs detection" marker
+#     same way we treat POSTGRES_PASSWORD=postgres above)
+# A real explicit override (a domain name, a LAN IP, etc.) is preserved.
 PUBLIC_HOST="$(read_env SUBTERRADB_PUBLIC_DB_HOST)"
-if [[ -z "$PUBLIC_HOST" ]]; then
+if [[ -z "$PUBLIC_HOST" ]] || [[ "$PUBLIC_HOST" == "localhost" ]]; then
   # Best-effort detection: first non-loopback IPv4 from `hostname -I` if it
-  # exists (Linux), otherwise localhost.
+  # exists (Linux), otherwise leave as localhost (macOS dev, Docker Desktop).
+  DETECTED=""
   if command -v hostname &> /dev/null && hostname -I &> /dev/null; then
     DETECTED="$(hostname -I 2>/dev/null | awk '{print $1}')"
-    PUBLIC_HOST="${DETECTED:-localhost}"
-  else
-    PUBLIC_HOST="localhost"
   fi
-  set_env SUBTERRADB_PUBLIC_DB_HOST "$PUBLIC_HOST"
-  set_env KONG_PROXY_URL "http://${PUBLIC_HOST}:58000"
-  ok "detected public host: ${PUBLIC_HOST}"
+  if [[ -n "$DETECTED" ]]; then
+    PUBLIC_HOST="$DETECTED"
+    set_env SUBTERRADB_PUBLIC_DB_HOST "$PUBLIC_HOST"
+    set_env KONG_PROXY_URL "http://${PUBLIC_HOST}:58000"
+    ok "detected public host: ${PUBLIC_HOST}"
+  else
+    # macOS / no hostname -I — fall back to localhost. Operator can override
+    # later by editing .env directly.
+    PUBLIC_HOST="localhost"
+    set_env SUBTERRADB_PUBLIC_DB_HOST "$PUBLIC_HOST"
+    set_env KONG_PROXY_URL "http://${PUBLIC_HOST}:58000"
+    warn "could not detect a non-loopback IP — using localhost"
+    warn "if developers will connect from a different machine, set"
+    warn "  SUBTERRADB_PUBLIC_DB_HOST=<your-host-or-ip>"
+    warn "  KONG_PROXY_URL=http://<your-host-or-ip>:58000"
+    warn "in .env and re-run this script."
+  fi
 else
   ok "SUBTERRADB_PUBLIC_DB_HOST already set: ${PUBLIC_HOST}"
 fi
