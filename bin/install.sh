@@ -224,7 +224,37 @@ info "This pulls postgres, kong, supabase images and builds the GUI."
 info "First run takes ~3-5 minutes; subsequent runs are <30 seconds."
 echo
 
+# Capture postgres's container ID (if any) before bringing the stack up so we
+# can detect whether `docker compose up` recreated it. Recreating postgres is
+# the most common cause of stale connection pools in the per-project containers
+# (postgrest / gotrue / storage / realtime), since those don't live in the
+# compose file and aren't touched by `compose up`. We use this to decide
+# whether to restart them after.
+PG_CONTAINER_ID_BEFORE="$(docker inspect -f '{{.Id}}' subterradb-postgres 2>/dev/null || true)"
+
 docker compose --env-file "$ENV_FILE" up -d --build
+
+PG_CONTAINER_ID_AFTER="$(docker inspect -f '{{.Id}}' subterradb-postgres 2>/dev/null || true)"
+
+# If postgres was recreated (different container ID before vs after, AND
+# there was a postgres before), every per-project container that was already
+# running is now holding TCP sockets to a container that no longer exists.
+# Their connection pools will return "broken pipe" on the next query. Restart
+# them so they reconnect to the new postgres container cleanly.
+if [[ -n "$PG_CONTAINER_ID_BEFORE" ]] && [[ "$PG_CONTAINER_ID_BEFORE" != "$PG_CONTAINER_ID_AFTER" ]]; then
+  echo
+  warn "postgres was recreated by docker compose"
+  warn "→ restarting per-project containers so their connection pools refresh"
+  PROJECT_CONTAINERS="$(docker ps --filter label=subterradb.project_slug --format '{{.Names}}')"
+  if [[ -n "$PROJECT_CONTAINERS" ]]; then
+    # `docker restart` accepts multiple names; xargs -r is a no-op if empty.
+    echo "$PROJECT_CONTAINERS" | xargs -r docker restart > /dev/null
+    COUNT=$(echo "$PROJECT_CONTAINERS" | wc -l | tr -d '[:space:]')
+    ok "restarted ${COUNT} per-project container(s)"
+  else
+    info "no per-project containers were running — nothing to restart"
+  fi
+fi
 
 # ----- 4. Wait until everything is healthy -----------------------------------
 hdr "Waiting for services to become healthy"

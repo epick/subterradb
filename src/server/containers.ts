@@ -435,6 +435,46 @@ export async function resumeProjectContainers(slug: string): Promise<void> {
   }
 }
 
+// Restart every running per-project container in place. Used after the
+// shared postgres container is recreated by an upgrade — without this, the
+// per-project services (postgrest, gotrue, storage, realtime) keep their
+// pools open against the OLD postgres container's TCP sockets and start
+// returning "broken pipe" errors. The label `subterradb.project_slug` is
+// stamped on every container at launch (see launchPostgrest / launchGoTrue
+// / launchStorage / launchRealtime above), so we can find them generically
+// without having to query the projects table.
+export interface RestartAllResult {
+  restarted: string[];
+  failed: Array<{ name: string; error: string }>;
+}
+
+export async function restartAllProjectContainers(): Promise<RestartAllResult> {
+  const containers = await docker.listContainers({
+    all: false, // only running ones
+    filters: { label: ['subterradb.project_slug'] },
+  });
+
+  const restarted: string[] = [];
+  const failed: RestartAllResult['failed'] = [];
+
+  // Sequential, not parallel — restarting too many containers at once spikes
+  // postgres connection attempts and risks hitting max_connections.
+  for (const c of containers) {
+    const name = c.Names[0]?.replace(/^\//, '') ?? c.Id;
+    try {
+      await docker.getContainer(c.Id).restart({ t: 5 });
+      restarted.push(name);
+    } catch (err) {
+      failed.push({
+        name,
+        error: err instanceof Error ? err.message : String(err),
+      });
+    }
+  }
+
+  return { restarted, failed };
+}
+
 // Wait until the per-project PostgREST container is responding on its
 // internal port. We probe via Kong's gateway since dockerode doesn't expose
 // HTTP curls easily — the actual readiness check happens in projects.ts

@@ -135,6 +135,35 @@ If you take nothing else from this section, do these three things before exposin
 2. **Bind `58001` to localhost.** Already hard-coded in `docker-compose.yml`. Don't change it.
 3. **Bind `3000` and `55432` to localhost** if the host is on a public network. Use a reverse proxy or VPN as described above.
 
+### Operational caveat: postgres recreate ⇒ restart per-project containers
+
+Per-project containers (`postgrest_*`, `gotrue_*`, `storage_*`, `realtime_*`) are launched dynamically by the SubterraDB control plane and do **not** live in `docker-compose.yml`. If the shared `subterradb-postgres` container is recreated for any reason — a `docker compose up -d` after editing the compose file, an image upgrade, etc. — the per-project containers keep their old TCP connection pools open against a postgres container that no longer exists. The next API call against any of them returns:
+
+```
+unable to fetch records: write failed: write tcp ...->...:5432: write: broken pipe
+```
+
+`bin/install.sh` handles this automatically: it captures postgres's container ID before and after `docker compose up`, and if it changed, restarts every per-project container in place. **You don't need to do anything if you upgrade with the installer.**
+
+If you upgrade by running `docker compose` directly (skipping `bin/install.sh`), the manual fix is one HTTP call against the GUI's admin endpoint:
+
+```bash
+# Get a session cookie:
+curl -c /tmp/sdb.cookies -X POST http://localhost:3000/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@subterra.local","password":"YOUR_ADMIN_PASSWORD"}'
+
+# Restart every per-project container:
+curl -b /tmp/sdb.cookies -X POST http://localhost:3000/api/admin/restart-project-containers
+# → { "restarted": ["postgrest_x", "gotrue_x", ...], "failed": [], "restartedCount": 12, "failedCount": 0 }
+```
+
+Or the equivalent shell one-liner if you're on the host:
+
+```bash
+docker ps --filter label=subterradb.project_slug --format '{{.Names}}' | xargs -r docker restart
+```
+
 ---
 
 ## 📸 Screenshot
