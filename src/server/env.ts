@@ -12,6 +12,24 @@
 //     the connection card / MCP card so developers can paste them into
 //     external clients (the SDK, psql, etc.).
 
+import { readFileSync } from 'node:fs';
+import { join } from 'node:path';
+
+// Read the VERSION file at module load (synchronously). This is fine because
+// the file is tiny and lives next to the code in both dev and the production
+// Docker image. We deliberately do NOT use a getter for this — the version
+// never changes during a process's lifetime.
+let cachedVersion: string | null = null;
+function readVersion(): string {
+  if (cachedVersion !== null) return cachedVersion;
+  try {
+    cachedVersion = readFileSync(join(process.cwd(), 'VERSION'), 'utf8').trim();
+  } catch {
+    cachedVersion = 'dev';
+  }
+  return cachedVersion;
+}
+
 function required(name: string): string {
   const value = process.env[name];
   if (!value || value.length === 0) {
@@ -68,5 +86,12 @@ export const env = {
       password: optional('SUBTERRADB_ADMIN_PASSWORD', 'subterra-admin'),
       name: optional('SUBTERRADB_ADMIN_NAME', 'SubterraDB Admin'),
     };
+  },
+
+  // ----- Build / release info -----
+  // SubterraDB's own version, read from the VERSION file at the repo root
+  // (or /app/VERSION inside the production image — see Dockerfile).
+  get version() {
+    return readVersion();
   },
 };

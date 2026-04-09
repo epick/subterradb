@@ -30,9 +30,11 @@ interface AppSidebarProps {
     email: string;
     role: 'admin' | 'developer';
   };
+  /** SubterraDB version, read from /VERSION at the repo root. */
+  version: string;
 }
 
-export function AppSidebar({ user }: AppSidebarProps) {
+export function AppSidebar({ user, version }: AppSidebarProps) {
   const t = useTranslations('nav');
   const pathname = usePathname();
 
@@ -80,6 +82,9 @@ export function AppSidebar({ user }: AppSidebarProps) {
 
       <div className="border-t border-border/40 p-3">
         <UserMenu user={user} />
+        <div className="mt-2 px-2 text-[10px] font-mono text-muted-foreground/60">
+          SubterraDB v{version}
+        </div>
       </div>
     </aside>
   );

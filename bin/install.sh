@@ -23,6 +23,11 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 REPO_ROOT="$(dirname "$SCRIPT_DIR")"
 cd "$REPO_ROOT"
 
+# Read the version from the VERSION file at the repo root. Used in the
+# success banner so the operator knows exactly which release they just
+# installed.
+SUBTERRADB_VERSION="$(cat VERSION 2>/dev/null || echo 'dev')"
+
 # ----- Output helpers --------------------------------------------------------
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
@@ -290,14 +295,68 @@ ADMIN_EMAIL="$(read_env SUBTERRADB_ADMIN_EMAIL)"
 [[ -z "$ADMIN_EMAIL" ]] && ADMIN_EMAIL="admin@subterra.local"
 ADMIN_PWD="$(read_env SUBTERRADB_ADMIN_PASSWORD)"
 
+# ----- 5. Post-install smoke test --------------------------------------------
+# Quick sanity check before declaring victory. We hit each user-facing
+# endpoint and abort with a clear error if anything is unhealthy. This
+# catches the class of bugs where every container is "healthy" by docker's
+# metric but the actual HTTP surface is broken (bad migration, missing env
+# var, dead connection pool, etc.).
+hdr "Smoke test"
+
+smoke_check() {
+  local label="$1"
+  local url="$2"
+  local expected="$3"
+  local got
+  got="$(curl -s -o /dev/null -w '%{http_code}' -m 5 "$url" 2>/dev/null || echo '000')"
+  if [[ "$got" == "$expected" ]]; then
+    ok "${label}: HTTP ${got}"
+    return 0
+  else
+    err "${label}: HTTP ${got} (expected ${expected})"
+    return 1
+  fi
+}
+
+SMOKE_FAILED=0
+smoke_check "GUI health" "http://localhost:3000/api/health" "200" || SMOKE_FAILED=1
+smoke_check "GUI login page" "http://localhost:3000/en/login" "200" || SMOKE_FAILED=1
+smoke_check "Kong proxy root" "http://localhost:58000/" "404" || SMOKE_FAILED=1
+
+# If there are existing projects, hit one of them through Kong end-to-end
+# to validate the full request path (Kong → per-project postgrest → postgres).
+EXISTING_SLUG="$(docker exec subterradb-postgres psql -U postgres -d subterradb_system -t -A -c \
+  "SELECT slug FROM projects WHERE status='running' LIMIT 1" 2>/dev/null | tr -d '[:space:]' || true)"
+if [[ -n "$EXISTING_SLUG" ]]; then
+  EXISTING_KEY="$(docker exec subterradb-postgres psql -U postgres -d subterradb_system -t -A -c \
+    "SELECT service_key FROM projects WHERE slug='$EXISTING_SLUG'" 2>/dev/null | tr -d '[:space:]')"
+  GOT="$(curl -s -o /dev/null -w '%{http_code}' -m 5 \
+    -H "apikey: $EXISTING_KEY" -H "Authorization: Bearer $EXISTING_KEY" \
+    "http://localhost:58000/${EXISTING_SLUG}/rest/v1/" 2>/dev/null || echo '000')"
+  if [[ "$GOT" == "200" ]]; then
+    ok "sample project /${EXISTING_SLUG}/rest/v1/: HTTP 200"
+  else
+    err "sample project /${EXISTING_SLUG}/rest/v1/: HTTP ${GOT} (expected 200)"
+    SMOKE_FAILED=1
+  fi
+fi
+
+if [[ "$SMOKE_FAILED" -ne 0 ]]; then
+  echo
+  err "One or more smoke tests failed. The stack may be partially up."
+  err "Check logs:  docker compose logs --tail 100"
+  exit 1
+fi
+
+# ----- 6. Success banner -----------------------------------------------------
 echo
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
-echo -e "${GREEN}${BOLD}  🎉  SubterraDB is up${RESET}"
+echo -e "${GREEN}${BOLD}  🎉  SubterraDB v${SUBTERRADB_VERSION} is up${RESET}"
 echo -e "${GREEN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${RESET}"
 echo
 echo -e "  ${BOLD}GUI:${RESET}            http://${PUBLIC_HOST}:3000"
 echo -e "  ${BOLD}Kong proxy:${RESET}     http://${PUBLIC_HOST}:58000"
-echo -e "  ${BOLD}Kong admin API:${RESET} http://${PUBLIC_HOST}:58001"
+echo -e "  ${BOLD}Kong admin API:${RESET} http://127.0.0.1:58001 (localhost only)"
 echo
 echo -e "  ${BOLD}Admin email:${RESET}    ${ADMIN_EMAIL}"
 if [[ "$GENERATED_ADMIN_PWD" -eq 1 ]]; then
@@ -310,4 +369,7 @@ echo -e "  ${BOLD}Manage:${RESET}"
 echo -e "    ${BLUE}docker compose logs -f subterradb-gui${RESET}   # tail GUI logs"
 echo -e "    ${BLUE}docker compose down${RESET}                      # stop the stack"
 echo -e "    ${BLUE}docker compose up -d${RESET}                     # start it again"
+echo
+echo -e "  ${BOLD}Upgrade later:${RESET}"
+echo -e "    ${BLUE}git pull && ./bin/install.sh${RESET}"
 echo

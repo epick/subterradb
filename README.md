@@ -60,6 +60,63 @@ When it finishes, open the URL it prints and log in. Done.
 
 ---
 
+## 🔄 Upgrading
+
+When a new version of SubterraDB is released, the upgrade flow is one command:
+
+```bash
+cd subterradb
+git pull
+./bin/install.sh
+```
+
+`bin/install.sh` is **idempotent**. Re-running it on an existing install:
+
+1. Preserves every secret in `.env` (JWT, admin password, postgres password, etc.) — never regenerated
+2. Detects whether `docker compose up -d` recreated the postgres container, and if so, automatically restarts every per-project container so their connection pools refresh against the new postgres (otherwise you'd get spurious `broken pipe` errors after the upgrade)
+3. Triggers schema migrations on GUI start. The migration runner reads `db/migrations/`, compares against the `subterradb_migrations` tracking table, and applies anything pending in its own transaction. Failed migrations crash the GUI on startup so you never serve traffic against a half-applied schema
+4. Runs a post-install smoke test that hits the GUI health endpoint, the login page, the Kong proxy, and (if you already have running projects) one project's REST endpoint. Anything below HTTP 200 / 404 fails the install loud
+5. Prints the version it just deployed in the success banner
+
+If you want to pin to a specific version instead of tracking `main`:
+
+```bash
+git fetch --tags
+git checkout v0.2.0
+./bin/install.sh
+```
+
+Rolling back is the same trick:
+
+```bash
+git checkout v0.1.0
+./bin/install.sh
+```
+
+> **Note about rollbacks**: rolling back across a migration boundary is **not** automatically reversible. If `v0.2.0` adds a column and you roll back to `v0.1.0`, the column stays in the database. The `v0.1.0` code won't know about it but won't break either. If you need to undo a migration explicitly, write a new forward migration that drops the column — never edit a migration that's already been released.
+
+The full list of changes per version lives in [`CHANGELOG.md`](CHANGELOG.md).
+
+### What if I upgraded by running `docker compose` directly instead of the installer?
+
+You can, and it'll mostly work — but you'll skip the auto-detect logic that handles the postgres-recreate case. If you see GoTrue / Storage / PostgREST returning 500s with `broken pipe` after a manual upgrade, run:
+
+```bash
+# From the repo root, login + restart per-project containers via the admin endpoint:
+curl -c /tmp/sdb.cookies -X POST http://localhost:3000/api/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@subterra.local","password":"YOUR_ADMIN_PASSWORD"}'
+curl -b /tmp/sdb.cookies -X POST http://localhost:3000/api/admin/restart-project-containers
+```
+
+Or the equivalent shell one-liner if you're on the host:
+
+```bash
+docker ps --filter label=subterradb.project_slug --format '{{.Names}}' | xargs -r docker restart
+```
+
+---
+
 ## 🔐 Security model — read this before deploying
 
 > **SubterraDB is intended for use behind a reverse proxy with TLS, on a private LAN, or behind a VPN. Do NOT expose the GUI, the Postgres port, or the Kong admin API directly to the public internet.**

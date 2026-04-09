@@ -75,6 +75,16 @@ COPY --from=builder --chown=nextjs:nodejs /app/packages/mcp-server/package.json 
 # output doesn't pick them up automatically because they're loaded dynamically.
 COPY --from=builder --chown=nextjs:nodejs /app/messages ./messages
 
+# Schema migrations — applied by src/server/migrations.ts at GUI startup via
+# the Next.js instrumentation hook. The runner reads files from
+# `${cwd}/db/migrations/` so this MUST end up at /app/db/migrations/ inside
+# the runner image.
+COPY --from=builder --chown=nextjs:nodejs /app/db/migrations ./db/migrations
+
+# VERSION file — read by env.ts at runtime so the GUI can show the current
+# version in the footer / settings.
+COPY --from=builder --chown=nextjs:nodejs /app/VERSION ./VERSION
+
 USER nextjs
 
 EXPOSE 3000

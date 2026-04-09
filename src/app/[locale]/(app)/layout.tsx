@@ -1,6 +1,7 @@
 import { redirect } from 'next/navigation';
 import { AppSidebar } from '@/components/layout/app-sidebar';
 import { getCurrentUser } from '@/server/auth';
+import { env } from '@/server/env';
 
 // Authenticated app shell.
 // Locks the viewport at h-screen and disables outer scrolling so the sidebar
@@ -38,7 +39,7 @@ export default async function AppLayout({
         className="pointer-events-none fixed inset-0 bg-[radial-gradient(circle_at_1px_1px,rgba(255,255,255,0.03)_1px,transparent_0)] [background-size:24px_24px]"
       />
 
-      <AppSidebar user={user} />
+      <AppSidebar user={user} version={env.version} />
       <div className="relative z-10 flex min-w-0 min-h-0 flex-1 flex-col">{children}</div>
     </div>
   );
