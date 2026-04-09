@@ -353,8 +353,9 @@
       "copy": "Copiar",
       "copied": "¡Copiado!",
       "testTitle": "Prueba la configuración desde una terminal",
-      "testDescription": "Córrelo en la misma máquina donde correrá el editor — debe imprimir la lista de tools en JSON-RPC.",
-      "shippedNote": "El servidor MCP vive en <path></path> dentro de este checkout de SubterraDB. Para usarlo desde una máquina de developer que no tiene el repo, clona o monta el repo de SubterraDB localmente y actualiza el path en args. Publicar a npm también es opción — ver packages/mcp-server/README.md."
+      "testDescription": "Córrelo en tu máquina de desarrollo — debe imprimir la lista de tools en JSON-RPC.",
+      "manualTitle": "Instalación manual (máquinas offline / restringidas)",
+      "manualDescription": "Si tu máquina no puede llegar a npm, clona el repo y apunta el snippet al archivo compilado en lugar de usar npx."
     },
     "services": {
       "title": "Servicios",

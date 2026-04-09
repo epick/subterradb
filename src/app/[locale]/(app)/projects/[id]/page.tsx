@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { notFound, redirect } from 'next/navigation';
 import { setRequestLocale } from 'next-intl/server';
 import { AppTopbar } from '@/components/layout/app-topbar';
@@ -27,18 +26,6 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
   const project = await getProjectForViewer(user, id);
   if (!project) notFound();
 
-  // Server-side derivations for the in-GUI MCP config card.
-  // Path is computed relative to process.cwd() — which is /app inside the
-  // production docker image, OR the repo root in dev mode. Both work because
-  // the MCP server is bundled at the same relative location in both cases.
-  const mcpServerPath = path.join(
-    process.cwd(),
-    'packages',
-    'mcp-server',
-    'dist',
-    'index.js',
-  );
-
   const projectUrl = `${env.kongProxyUrl}/${project.slug}`;
 
   // Developer-facing Postgres connection URL. host:port comes from the PUBLIC
@@ -65,7 +52,6 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
           <ProvisioningPoller projectId={project.id} status={project.status} />
           <ProjectDetailTabs
             project={project}
-            mcpServerPath={mcpServerPath}
             projectUrl={projectUrl}
             dbUrl={dbUrl}
           />

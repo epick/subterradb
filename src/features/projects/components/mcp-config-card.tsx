@@ -14,8 +14,6 @@ interface McpConfigCardProps {
   dbUrl: string;
   /** Pre-built gateway URL with the project slug appended. */
   projectUrl: string;
-  /** Absolute path to packages/mcp-server/dist/index.js on the SubterraDB host. */
-  mcpServerPath: string;
 }
 
 // Editor presets — each one knows where its MCP config file lives so the
@@ -57,15 +55,16 @@ const EDITORS = [
 type EditorKey = (typeof EDITORS)[number]['key'];
 
 // "Copy MCP config" card on the project detail page. Generates a ready-to-paste
-// JSON snippet with the project's real env vars + the absolute path to the
-// MCP server bundled inside this SubterraDB checkout. Zero placeholders to
-// fill in — copy → paste → done.
+// JSON snippet with the project's real env vars. The snippet uses
+// `npx -y @subterradb/mcp-server` so the developer needs ZERO local install —
+// the first time their editor launches the MCP, npm fetches the package and
+// runs it. The card runs on the developer's laptop, never on the SubterraDB
+// host, so there's no path to a local file involved.
 export function McpConfigCard({
   projectSlug,
   serviceKey,
   dbUrl,
   projectUrl,
-  mcpServerPath,
 }: McpConfigCardProps) {
   const t = useTranslations('projects.mcp');
   const [editor, setEditor] = useState<EditorKey>('cursor');
@@ -73,7 +72,6 @@ export function McpConfigCard({
 
   const config = buildMcpConfig({
     serverName: `subterradb-${projectSlug}`,
-    mcpServerPath,
     projectUrl,
     serviceKey,
     dbUrl,
@@ -164,16 +162,31 @@ export function McpConfigCard({
           </summary>
           <p className="mt-2 text-[0.65rem] text-muted-foreground">{t('testDescription')}</p>
           <pre className="mt-2 overflow-x-auto rounded-md bg-[#0f0f12] px-3 py-2 font-mono text-[10px] leading-relaxed text-foreground/85">
-            <code>{buildTestCommand({ projectUrl, serviceKey, dbUrl, mcpServerPath })}</code>
+            <code>{buildTestCommand({ projectUrl, serviceKey, dbUrl })}</code>
           </pre>
         </details>
 
-        {/* Notes about distribution */}
-        <p className="text-[0.65rem] leading-relaxed text-muted-foreground">
-          {t.rich('shippedNote', {
-            path: () => <code className="font-mono text-foreground/90">{mcpServerPath}</code>,
-          })}
-        </p>
+        {/* Manual install fallback — for offline / locked-down dev machines */}
+        <details className="rounded-lg border border-border/40 bg-background/40 px-4 py-3">
+          <summary className="flex cursor-pointer items-center gap-2 text-xs font-medium text-muted-foreground hover:text-foreground">
+            <Terminal className="size-3.5" />
+            {t('manualTitle')}
+          </summary>
+          <p className="mt-2 text-[0.65rem] leading-relaxed text-muted-foreground">
+            {t('manualDescription')}
+          </p>
+          <pre className="mt-2 overflow-x-auto rounded-md bg-[#0f0f12] px-3 py-2 font-mono text-[10px] leading-relaxed text-foreground/85">
+            <code>{`git clone https://github.com/epick/subterradb.git
+cd subterradb/packages/mcp-server
+npm install && npm run build
+
+# then in your MCP config, replace the snippet's
+# "command": "npx", "args": ["-y", "@subterradb/mcp-server"]
+# with:
+# "command": "node",
+# "args": ["/absolute/path/to/subterradb/packages/mcp-server/dist/index.js"]`}</code>
+          </pre>
+        </details>
       </div>
     </section>
   );
@@ -181,7 +194,6 @@ export function McpConfigCard({
 
 interface ConfigInput {
   serverName: string;
-  mcpServerPath: string;
   projectUrl: string;
   serviceKey: string;
   dbUrl: string;
@@ -190,9 +202,12 @@ interface ConfigInput {
 // Generates the canonical mcp.json snippet. The MCP-standard schema is the
 // same across editors, so this single string works as-is for Cursor / Claude
 // Code / Cline / Windsurf — only the destination file path changes.
+//
+// Uses `npx -y @subterradb/mcp-server` so the developer needs zero local
+// install: the first time their editor launches the MCP, npm fetches the
+// package and runs it. Subsequent launches use the cached copy.
 function buildMcpConfig({
   serverName,
-  mcpServerPath,
   projectUrl,
   serviceKey,
   dbUrl,
@@ -200,8 +215,8 @@ function buildMcpConfig({
   const config = {
     mcpServers: {
       [serverName]: {
-        command: 'node',
-        args: [mcpServerPath],
+        command: 'npx',
+        args: ['-y', '@subterradb/mcp-server'],
         env: {
           SUBTERRADB_URL: projectUrl,
           SUBTERRADB_SERVICE_KEY: serviceKey,
@@ -219,11 +234,10 @@ function buildTestCommand({
   projectUrl,
   serviceKey,
   dbUrl,
-  mcpServerPath,
 }: Omit<ConfigInput, 'serverName'>): string {
   return `echo '{"jsonrpc":"2.0","id":1,"method":"tools/list"}' | \\
   SUBTERRADB_URL="${projectUrl}" \\
   SUBTERRADB_SERVICE_KEY="${serviceKey.slice(0, 24)}..." \\
   SUBTERRADB_DB_URL="${dbUrl}" \\
-  node ${mcpServerPath}`;
+  npx -y @subterradb/mcp-server`;
 }

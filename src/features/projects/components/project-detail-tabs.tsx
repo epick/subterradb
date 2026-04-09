@@ -10,8 +10,6 @@ import type { ProjectWithKeys } from './types-client';
 
 interface ProjectDetailTabsProps {
   project: ProjectWithKeys;
-  /** Absolute path on the SubterraDB host to packages/mcp-server/dist/index.js */
-  mcpServerPath: string;
   /** Pre-built gateway URL with the project slug appended (used by the MCP card) */
   projectUrl: string;
   /** Pre-built Postgres connection URL for the project's database */
@@ -22,7 +20,6 @@ const TABS = ['overview', 'services', 'apiKeys', 'database', 'members', 'setting
 
 export function ProjectDetailTabs({
   project,
-  mcpServerPath,
   projectUrl,
   dbUrl,
 }: ProjectDetailTabsProps) {
@@ -47,7 +44,6 @@ export function ProjectDetailTabs({
           serviceKey={project.serviceKey}
           dbUrl={dbUrl}
           projectUrl={projectUrl}
-          mcpServerPath={mcpServerPath}
         />
       </TabsContent>
 
