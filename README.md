@@ -266,7 +266,14 @@ docker ps --filter label=subterradb.project_slug --format '{{.Names}}' | xargs -
 └────────────────────────────────────────────────────────────────┘
 ```
 
-**RAM footprint:** ~1 GB infrastructure + ~200 MB per project. Ten projects fit comfortably in **4 GB total**, vs ~40 GB for ten separate Supabase VMs.
+**RAM footprint** (measured on a Debian 13 VM with 8 GB, real `docker stats` + `free -m`, not estimates):
+
+- **Idle baseline** (postgres + kong + gui + upstream, zero projects): **~700 MB**
+- **Per project** (4 containers — postgrest + gotrue + storage + realtime): **~316 MB** average · **~360 MB** once warmed
+- **Realistic capacity on an 8 GB VM**: **~18-20 projects**
+- **vs the official Supabase self-hosted distribution** (1 project per VM, ~8 GB recommended): **~18× more dense**
+
+Realtime is the dominant per-project cost (165-195 MB each); PostgREST + GoTrue combined are ~30 MB. Storage starts at ~50 MB and warms to ~110 MB.
 
 ---
 
