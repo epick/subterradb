@@ -142,29 +142,31 @@ When it finishes, open the URL it prints and log in. Done.
 
 ## 🔌 MCP Server
 
-SubterraDB ships with `@subterradb/mcp-server` — a Model Context Protocol server that exposes any project's database to Cursor, Claude Code, Claude Desktop, Cline, Windsurf, and any other MCP-aware editor.
+SubterraDB ships with [`@subterradb/mcp-server`](https://www.npmjs.com/package/@subterradb/mcp-server) — a Model Context Protocol server published on npm that exposes any project's database to Cursor, Claude Code, Claude Desktop, Cline, Windsurf, and any other MCP-aware editor.
 
-The Connection Card on every project page generates a ready-to-paste `mcp.json` snippet with the project's real env vars filled in. **Copy → paste → done** — no placeholder substitution required.
+**Zero install on the developer machine.** The MCP runs via `npx`, so all anyone needs is Node 18+ on their laptop and the snippet from the GUI. The Connection Card on every project page generates a ready-to-paste `mcp.json` with the project's real URL, service key, and database URL pre-filled — copy → paste into your editor's MCP config → done.
 
 ```json
 {
   "mcpServers": {
     "subterradb-my-app": {
-      "command": "node",
-      "args": ["/path/to/subterradb/packages/mcp-server/dist/index.js"],
+      "command": "npx",
+      "args": ["-y", "--package=@subterradb/mcp-server", "mcp-server"],
       "env": {
         "SUBTERRADB_URL": "http://your-server:58000/my-app",
         "SUBTERRADB_SERVICE_KEY": "eyJhbGc...",
-        "SUBTERRADB_DB_URL": "postgresql://postgres:...@your-server:55432/proj_my_app"
+        "SUBTERRADB_DB_URL": "postgresql://postgres:postgres@your-server:55432/proj_my_app"
       }
     }
   }
 }
 ```
 
-Tools exposed: `get_project_info`, `list_tables`, `execute_sql`, `list_users`. Names mirror the official Supabase MCP so the two can coexist in the same editor config — flip between them based on whether you're targeting local SubterraDB or Supabase Cloud.
+The package itself stores no URLs — all configuration is per-server in `env`, so the same developer can have multiple SubterraDB projects (and the official Supabase Cloud MCP) coexisting in the same `mcp.json`.
 
-See [`packages/mcp-server/README.md`](packages/mcp-server/README.md) for full details.
+Tools exposed: `get_project_info`, `list_tables`, `execute_sql`, `list_users`. Names mirror the official Supabase MCP so switching between local SubterraDB and Supabase Cloud projects is friction-free.
+
+See [`packages/mcp-server/README.md`](packages/mcp-server/README.md) for the full configuration reference, or the [npm page](https://www.npmjs.com/package/@subterradb/mcp-server) for the latest version.
 
 ---
 

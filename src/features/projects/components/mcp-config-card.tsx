@@ -212,11 +212,15 @@ function buildMcpConfig({
   serviceKey,
   dbUrl,
 }: ConfigInput): string {
+  // Explicit -p PACKAGE BIN form. This is more robust than the shorter
+  // `npx -y @subterradb/mcp-server` because npx's auto bin-name resolution
+  // for scoped packages is inconsistent across npm versions — the explicit
+  // form always works.
   const config = {
     mcpServers: {
       [serverName]: {
         command: 'npx',
-        args: ['-y', '@subterradb/mcp-server'],
+        args: ['-y', '--package=@subterradb/mcp-server', 'mcp-server'],
         env: {
           SUBTERRADB_URL: projectUrl,
           SUBTERRADB_SERVICE_KEY: serviceKey,
@@ -239,5 +243,5 @@ function buildTestCommand({
   SUBTERRADB_URL="${projectUrl}" \\
   SUBTERRADB_SERVICE_KEY="${serviceKey.slice(0, 24)}..." \\
   SUBTERRADB_DB_URL="${dbUrl}" \\
-  npx -y @subterradb/mcp-server`;
+  npx -y --package=@subterradb/mcp-server mcp-server`;
 }
