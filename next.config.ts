@@ -15,11 +15,6 @@ const nextConfig: NextConfig = {
   // require() them at runtime from node_modules instead of bundling — which
   // is correct anyway, since they're server-only.
   serverExternalPackages: ['dockerode', 'ssh2', 'docker-modem', 'cpu-features'],
-
-  experimental: {
-    // Enables the Next.js DevTools MCP server at /_next/mcp during dev.
-    mcpServer: true,
-  },
 };
 
 export default withNextIntl(nextConfig);
