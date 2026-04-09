@@ -48,7 +48,12 @@ services:
       # leave the cluster ready before any other service connects.
       - ./db/init:/docker-entrypoint-initdb.d:ro
     ports:
-      - "55432:5432"
+      # Bind interface controlled by SUBTERRADB_BIND_DB. Defaults to 0.0.0.0
+      # for LAN dev access (psql, pgAdmin, MCP from a developer's laptop).
+      # On a public VPS, set SUBTERRADB_BIND_DB=127.0.0.1 in .env to keep
+      # Postgres reachable only from the host itself — see README "Going to
+      # production".
+      - "${SUBTERRADB_BIND_DB:-0.0.0.0}:55432:5432"
     healthcheck:
       test: ["CMD", "pg_isready", "-U", "postgres"]
       interval: 3s
@@ -96,8 +101,16 @@ services:
       KONG_PROXY_LISTEN: "0.0.0.0:8000"
       KONG_PLUGINS: "bundled"
     ports:
-      - "58000:8000"   # public proxy — what developers' SDKs hit
-      - "58001:8001"   # admin API — only used internally by the GUI
+      # Public proxy — what developers' SDKs hit. Bind interface controlled by
+      # SUBTERRADB_BIND_KONG_PROXY. This is THE port that needs to be reachable
+      # from outside the host (or from a reverse proxy). Defaults to 0.0.0.0.
+      - "${SUBTERRADB_BIND_KONG_PROXY:-0.0.0.0}:58000:8000"
+      # Admin API — Kong has NO authentication on this endpoint. Anyone who
+      # can reach it can manage the gateway, which would be catastrophic. We
+      # hard-bind it to 127.0.0.1 so it's only reachable from the host itself
+      # (the GUI container talks to Kong over the docker network, not through
+      # this port, so there is no functional reason to expose it externally).
+      - "127.0.0.1:58001:8001"
     healthcheck:
       test: ["CMD", "kong", "health"]
       interval: 5s
@@ -170,7 +183,11 @@ services:
       # (Portainer, Watchtower, etc.).
       - /var/run/docker.sock:/var/run/docker.sock
     ports:
-      - "3000:3000"
+      # Bind interface controlled by SUBTERRADB_BIND_GUI. Defaults to 0.0.0.0
+      # for LAN dev access. On a public VPS, set SUBTERRADB_BIND_GUI=127.0.0.1
+      # in .env and put nginx/Caddy/Traefik in front terminating TLS — see
+      # README "Going to production".
+      - "${SUBTERRADB_BIND_GUI:-0.0.0.0}:3000:3000"
     healthcheck:
       test: ["CMD", "wget", "-qO-", "http://localhost:3000/api/health"]
       interval: 10s

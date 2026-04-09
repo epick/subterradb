@@ -168,11 +168,39 @@ else
   ok "SUBTERRADB_PUBLIC_DB_HOST already set: ${PUBLIC_HOST}"
 fi
 
-# Make sure the postgres superuser password exists in .env so docker-compose
-# doesn't bail with a missing variable.
-if [[ -z "$(read_env POSTGRES_PASSWORD)" ]]; then
-  set_env POSTGRES_PASSWORD "postgres"
-  ok "set default POSTGRES_PASSWORD (override in .env for production)"
+# Generate a strong POSTGRES_PASSWORD if missing or still set to the
+# well-known default. Important: this only takes effect on FRESH installs
+# (when the postgres data volume is being initialized for the first time).
+# Postgres reads POSTGRES_PASSWORD only on first init; after that the
+# password lives inside pg_authid and the env var is ignored. If we detect
+# an existing volume + a default password, we warn the operator instead of
+# silently doing nothing.
+PG_PASS_CURRENT="$(read_env POSTGRES_PASSWORD)"
+PG_VOLUME_EXISTS="no"
+if docker volume inspect subterradb_postgres_data &> /dev/null; then
+  PG_VOLUME_EXISTS="yes"
+fi
+
+if [[ -z "$PG_PASS_CURRENT" ]] || [[ "$PG_PASS_CURRENT" == "postgres" ]]; then
+  if [[ "$PG_VOLUME_EXISTS" == "no" ]]; then
+    NEW_PG_PASS="$(openssl rand -base64 24 | tr -d '\n=' | tr '/+' '_-' | head -c 32)"
+    set_env POSTGRES_PASSWORD "$NEW_PG_PASS"
+    ok "generated strong POSTGRES_PASSWORD (32 chars)"
+  else
+    set_env POSTGRES_PASSWORD "postgres"
+    warn "POSTGRES_PASSWORD is still the well-known default 'postgres'"
+    warn "and the postgres data volume already exists, so I cannot rotate"
+    warn "it automatically without risking your data. To fix, run:"
+    warn ""
+    warn "  NEW_PASS=\"\$(openssl rand -base64 24 | tr -d '\\n=' | tr '/+' '_-' | head -c 32)\""
+    warn "  docker exec subterradb-postgres psql -U postgres -c \"ALTER USER postgres PASSWORD '\$NEW_PASS';\""
+    warn "  sed -i \"s|^POSTGRES_PASSWORD=.*|POSTGRES_PASSWORD=\$NEW_PASS|\" .env"
+    warn "  docker compose --env-file .env up -d --force-recreate subterradb-gui"
+    warn ""
+    warn "This is CRITICAL if your VM is exposed to the public internet."
+  fi
+else
+  ok "POSTGRES_PASSWORD already set — keeping existing value"
 fi
 
 # Detect the host's `docker` group GID. The GUI container runs as a non-root
