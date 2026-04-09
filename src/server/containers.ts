@@ -1,4 +1,5 @@
 import Docker from 'dockerode';
+import { env } from './env';
 
 // Container orchestrator.
 //
@@ -177,8 +178,16 @@ export async function launchGoTrue(input: ProjectContainerInput): Promise<Launch
   )}@subterradb-postgres:5432/${input.databaseName}?search_path=auth`;
 
   // Public path the gateway exposes for this project's auth API. GoTrue uses
-  // it inside email links and OAuth callbacks.
-  const externalUrl = `http://localhost:58000/${input.slug}/auth/v1`;
+  // these inside email links and OAuth callbacks, so they MUST be the
+  // externally-reachable URLs (not localhost) — otherwise password reset
+  // emails, magic links, and email confirmation links would all redirect
+  // users to a non-existent localhost URL on whoever's machine receives
+  // the email.
+  //
+  // env.kongProxyUrl comes from KONG_PROXY_URL in .env, which bin/install.sh
+  // populates with the host's real public IP via `hostname -I`.
+  const externalUrl = `${env.kongProxyUrl}/${input.slug}/auth/v1`;
+  const siteUrl = env.kongProxyUrl;
 
   const container = await docker.createContainer({
     name,
@@ -196,7 +205,7 @@ export async function launchGoTrue(input: ProjectContainerInput): Promise<Launch
       'GOTRUE_API_HOST=0.0.0.0',
       'GOTRUE_API_PORT=9999',
       'GOTRUE_DISABLE_SIGNUP=false',
-      'GOTRUE_SITE_URL=http://localhost:58000',
+      `GOTRUE_SITE_URL=${siteUrl}`,
       'GOTRUE_URI_ALLOW_LIST=',
       'GOTRUE_EXTERNAL_EMAIL_ENABLED=true',
       // Mailer disabled — sign-ups are auto-confirmed and can sign in immediately.

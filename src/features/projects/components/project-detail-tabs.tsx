@@ -38,7 +38,7 @@ export function ProjectDetailTabs({
       <TabsContent value="overview" className="space-y-6">
         <ProjectDetailStats project={project} />
         <ProjectQuickActions projectId={project.id} />
-        <ConnectionCard project={project} />
+        <ConnectionCard project={project} projectUrl={projectUrl} dbUrl={dbUrl} />
         <McpConfigCard
           projectSlug={project.slug}
           serviceKey={project.serviceKey}

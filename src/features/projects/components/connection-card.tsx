@@ -9,21 +9,24 @@ import type { ProjectWithKeys } from './types-client';
 
 interface ConnectionCardProps {
   project: ProjectWithKeys;
+  /** Pre-built gateway URL with the project slug appended (`${kongProxyUrl}/${slug}`). */
+  projectUrl: string;
+  /** Pre-built developer-facing Postgres connection URL for this project's database. */
+  dbUrl: string;
 }
 
 // The single most important card on the project detail page: every value a
 // developer needs to wire their app to this Supabase project.
 // Each row exposes a copy button; sensitive values default to masked.
 //
-// The proxy URL is hard-coded to the local dev port (58000). For real
-// deployments this should come from a backend-provided value.
-const PROJECT_BASE_URL = 'http://localhost:58000';
-
-export function ConnectionCard({ project }: ConnectionCardProps) {
+// projectUrl and dbUrl are computed by the parent server component
+// (src/app/[locale]/(app)/projects/[id]/page.tsx) so they can read the env
+// vars (KONG_PROXY_URL, SUBTERRADB_PUBLIC_DB_HOST, SUBTERRADB_PUBLIC_DB_PORT,
+// POSTGRES_PASSWORD) — bin/install.sh populates those with the host's real
+// public IP, so the values shown here are reachable from a developer's
+// laptop, not just from the host.
+export function ConnectionCard({ project, projectUrl, dbUrl }: ConnectionCardProps) {
   const t = useTranslations('projects.connection');
-
-  const projectUrl = `${PROJECT_BASE_URL}/${project.slug}`;
-  const dbUrl = `postgresql://postgres:${project.dbPassword}@localhost:55432/postgres`;
 
   return (
     <section className="overflow-hidden rounded-2xl border border-border/60 bg-card/60 shadow-2xl shadow-black/30 backdrop-blur-xl">

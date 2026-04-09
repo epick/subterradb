@@ -4,6 +4,24 @@ All notable changes to SubterraDB are documented here. Format roughly follows [K
 
 The version that's currently checked in lives in [`VERSION`](VERSION) at the repo root and is shown in the GUI sidebar.
 
+## [0.2.2] — 2026-04-09
+
+Patch fix: full audit of every hardcoded `localhost` / `postgres:postgres` / `:55432` in the source tree, with five real bugs fixed. The v0.2.1 fix only handled the env-vars-driven path (the MCP card); this release closes the hardcoded-value path (the Connection card and — most critically — GoTrue's email link generation).
+
+### Fixed
+- **`src/features/projects/components/connection-card.tsx`** had `const PROJECT_BASE_URL = 'http://localhost:58000'` hardcoded at the top of the file. The Connection card on every project page was showing `http://localhost:58000/{slug}` regardless of the host's real public IP. The Database URL row was even worse: hardcoded to `postgresql://postgres:${project.dbPassword}@localhost:55432/postgres`, which had THREE problems — wrong host (`localhost`), wrong password (the per-project authenticator role's password instead of the postgres superuser), and wrong database name (`/postgres` instead of `/proj_{slug}`). The card now receives `projectUrl` and `dbUrl` as props from the parent server component (`src/app/[locale]/(app)/projects/[id]/page.tsx`), which builds them from `env.kongProxyUrl`, `env.publicDbHost`, `env.publicDbPort`, and the new `env.postgresPassword`.
+- **`src/server/containers.ts`** hardcoded `API_EXTERNAL_URL=http://localhost:58000/{slug}/auth/v1` and `GOTRUE_SITE_URL=http://localhost:58000` when launching per-project GoTrue containers. These values are baked into every email confirmation link, password reset link, magic link, and OAuth callback that GoTrue generates — meaning any developer trying to use email auth on their project would receive emails containing `localhost:58000` URLs that don't work from their laptop. Both now read from `env.kongProxyUrl`, which is populated by `bin/install.sh` from `hostname -I`. **This bug was invisible until someone tried email auth, which would have been a confusing production failure for the first user to hit it.**
+- **`src/app/[locale]/(app)/projects/[id]/page.tsx`** hardcoded `postgres:postgres` as the user:password for the developer-facing DB connection URL. After v0.2.0 generates a strong random `POSTGRES_PASSWORD`, this hardcoded `postgres` password was wrong — `psql` connections built from the displayed URL would fail. Now reads from `env.postgresPassword` (URL-encoded so passwords with `+`, `/`, `=` work).
+
+### Added
+- **`env.postgresPassword`** getter in `src/server/env.ts`. Reads `POSTGRES_PASSWORD` from the environment with a `'postgres'` fallback for dev mode. Used to build the developer-facing DB connection string.
+- **`POSTGRES_PASSWORD` is now passed through to the GUI container** in `docker-compose.yml`'s `subterradb-gui.environment` block. Prior to this it lived only in `SUBTERRADB_DATABASE_URL` and wasn't accessible directly.
+
+### Why this matters
+The v0.2.1 fix made me re-examine every place a URL or credential gets composed. Five hardcoded values survived the v0.2.0 audit because they were string literals inside component files, not env-var fallbacks. The honest postmortem: I should have caught these in the security pass and the pre-release validation. The fix here is exhaustive — `grep -rn 'localhost\|127\.0\.0\.1\|:55432\|:58000\|:58001\|postgres:postgres' src` returns only legitimate uses (internal docker network port literals like `postgrest:3000`, healthcheck URLs that run inside the container's own loopback, and `optional()` fallbacks in `env.ts` that are never hit when env vars are set correctly by `bin/install.sh`).
+
+[0.2.2]: https://github.com/epick/subterradb/releases/tag/v0.2.2
+
 ## [0.2.1] — 2026-04-09
 
 Patch fix: the GUI's Connection Card and MCP card were generating snippets with `localhost` for `SUBTERRADB_URL` and `SUBTERRADB_DB_URL`, which is wrong for any developer connecting from a different machine. Caught by manual testing of the freshly-installed v0.2.0 on the test VM.

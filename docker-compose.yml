@@ -159,6 +159,12 @@ services:
       SUBTERRADB_PUBLIC_DB_HOST: ${SUBTERRADB_PUBLIC_DB_HOST:-localhost}
       SUBTERRADB_PUBLIC_DB_PORT: ${SUBTERRADB_PUBLIC_DB_PORT:-55432}
 
+      # ---- Postgres superuser password ----
+      # Used by the GUI to display the developer-facing DB connection string
+      # in the Connection Card / MCP card. Same value as embedded in
+      # SUBTERRADB_DATABASE_URL above.
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
+
       # ---- Auth ----
       SUBTERRADB_JWT_SECRET: ${SUBTERRADB_JWT_SECRET:?set SUBTERRADB_JWT_SECRET in .env — use bin/install.sh to generate one}
       SUBTERRADB_ADMIN_EMAIL: ${SUBTERRADB_ADMIN_EMAIL:-admin@subterra.local}

@@ -76,6 +76,16 @@ export const env = {
     return optional('SUBTERRADB_PUBLIC_DB_PORT', '55432');
   },
 
+  // ----- Postgres superuser password -----
+  // Used to build the developer-facing DB connection string shown in the
+  // GUI's connection card. Devs use this to psql / pgAdmin / Datagrip into
+  // their own project's database from outside the docker network. Inside
+  // the docker network the GUI uses SUBTERRADB_DATABASE_URL (which embeds
+  // the same password) — so this is purely for display.
+  get postgresPassword() {
+    return optional('POSTGRES_PASSWORD', 'postgres');
+  },
+
   // ----- Auth -----
   get jwtSecret() {
     return required('SUBTERRADB_JWT_SECRET');

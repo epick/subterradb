@@ -28,12 +28,19 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
 
   const projectUrl = `${env.kongProxyUrl}/${project.slug}`;
 
-  // Developer-facing Postgres connection URL. host:port comes from the PUBLIC
-  // env vars (defaults to localhost) so developers can paste it into psql /
-  // their MCP config / their app from outside the docker network. The postgres
-  // superuser is intentional — devs need full access to their own DB.
+  // Developer-facing Postgres connection URL. Every component is read from
+  // env vars so the snippet copied into the developer's psql / pgAdmin / MCP
+  // config is reachable from their laptop:
+  //   - postgres        → the superuser (devs need full access to their DB)
+  //   - postgresPassword → bin/install.sh generates a strong random one
+  //   - publicDbHost    → bin/install.sh detects via `hostname -I`
+  //   - publicDbPort    → 55432 unless explicitly overridden
+  //   - projectDbName   → proj_{slug}
+  // Nothing here is hardcoded — every value comes from env.
   const projectDbName = projectDatabaseName(project.slug);
-  const dbUrl = `postgresql://postgres:postgres@${env.publicDbHost}:${env.publicDbPort}/${projectDbName}`;
+  const dbUrl =
+    `postgresql://postgres:${encodeURIComponent(env.postgresPassword)}` +
+    `@${env.publicDbHost}:${env.publicDbPort}/${projectDbName}`;
 
   return (
     <>
