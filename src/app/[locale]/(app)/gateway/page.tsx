@@ -25,6 +25,7 @@ export default async function GatewayPage({
 
   const user = await getCurrentUser();
   if (!user) redirect(`/${locale}/login`);
+  if (user.role !== 'admin') redirect(`/${locale}/projects`);
 
   const t = await getTranslations('gateway.page');
 

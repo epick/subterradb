@@ -332,6 +332,87 @@
       "comingSoon": {
         "kicker": "Coming soon",
         "description": "This panel will be available once the control-plane backend is wired up. The visual layout is locked in — only the data source is missing."
+      },
+      "services": {
+        "title": "Project services",
+        "subtitle": "The four containers that power this project.",
+        "status": "Status",
+        "running": "Running",
+        "stopped": "Stopped",
+        "image": "Image",
+        "container": "Container",
+        "port": "Internal port",
+        "restartPolicy": "Restart policy",
+        "types": {
+          "postgrest": "PostgREST",
+          "gotrue": "Auth (GoTrue)",
+          "storage": "Storage",
+          "realtime": "Realtime"
+        },
+        "descriptions": {
+          "postgrest": "Auto-generated REST API from your PostgreSQL schema.",
+          "gotrue": "User authentication and JWT token management.",
+          "storage": "S3-compatible object storage with RLS policies.",
+          "realtime": "Broadcasts database changes over WebSocket."
+        }
+      },
+      "apiKeysTab": {
+        "title": "API keys",
+        "subtitle": "Use these keys with the Supabase client SDK. The anon key is safe for browsers; the service role key bypasses RLS and must stay server-side.",
+        "anonKey": "Anon key (public)",
+        "anonKeyDescription": "Safe to embed in client-side code. Respects Row Level Security policies.",
+        "serviceRoleKey": "Service role key (secret)",
+        "serviceRoleKeyDescription": "Bypasses RLS. Use only on trusted servers — never expose in the browser.",
+        "jwtSecret": "JWT secret",
+        "jwtSecretDescription": "Signing key for all JWTs in this project. Used internally by PostgREST and GoTrue.",
+        "reveal": "Reveal",
+        "hide": "Hide",
+        "copy": "Copy",
+        "copied": "Copied!"
+      },
+      "databaseTab": {
+        "title": "Database",
+        "subtitle": "Connection details and tools for this project's PostgreSQL database.",
+        "connectionString": "Connection string",
+        "connectionStringHint": "Use this in psql, pgAdmin, or any PostgreSQL client.",
+        "databaseName": "Database name",
+        "authenticatorRole": "Authenticator role",
+        "quickLinks": "Quick links",
+        "openSqlEditor": "SQL Editor",
+        "openTableEditor": "Table Editor",
+        "reveal": "Reveal",
+        "hide": "Hide",
+        "copy": "Copy",
+        "copied": "Copied!"
+      },
+      "membersTab": {
+        "title": "Project members",
+        "subtitle": "Developers assigned to this project. Admins always have access to all projects.",
+        "noMembers": "No developers assigned yet.",
+        "noMembersHint": "Add developers from the members page to give them access to this project.",
+        "addMember": "Add member",
+        "removeMember": "Remove",
+        "memberAdded": "Member added",
+        "memberRemoved": "Member removed",
+        "selectMember": "Select a developer...",
+        "adminsNote": "Admins have access to all projects automatically.",
+        "errors": {
+          "already_assigned": "This member is already assigned.",
+          "network": "Network error. Please try again."
+        }
+      },
+      "settingsTab": {
+        "title": "Project settings",
+        "subtitle": "Manage this project's configuration.",
+        "general": "General",
+        "projectName": "Project name",
+        "projectSlug": "Project slug",
+        "slugHint": "Used in URLs and container names. Cannot be changed.",
+        "createdAt": "Created",
+        "dangerZone": "Danger zone",
+        "dangerDescription": "Destructive actions that cannot be undone.",
+        "deleteProject": "Delete this project",
+        "deleteDescription": "Permanently remove this project, its database, all containers, and Kong routes."
       }
     },
     "connection": {

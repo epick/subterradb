@@ -61,6 +61,7 @@ export default async function ProjectDetailPage({ params }: ProjectDetailPagePro
             project={project}
             projectUrl={projectUrl}
             dbUrl={dbUrl}
+            canManage={user.role === 'admin'}
           />
         </div>
       </main>

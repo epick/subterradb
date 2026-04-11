@@ -332,6 +332,87 @@
       "comingSoon": {
         "kicker": "Próximamente",
         "description": "Esta sección estará disponible cuando conectemos el backend del control-plane. El diseño visual ya está listo — solo falta la fuente de datos."
+      },
+      "services": {
+        "title": "Servicios del proyecto",
+        "subtitle": "Los cuatro contenedores que alimentan este proyecto.",
+        "status": "Estado",
+        "running": "Activo",
+        "stopped": "Detenido",
+        "image": "Imagen",
+        "container": "Contenedor",
+        "port": "Puerto interno",
+        "restartPolicy": "Política de reinicio",
+        "types": {
+          "postgrest": "PostgREST",
+          "gotrue": "Auth (GoTrue)",
+          "storage": "Storage",
+          "realtime": "Realtime"
+        },
+        "descriptions": {
+          "postgrest": "API REST auto-generada desde tu esquema PostgreSQL.",
+          "gotrue": "Autenticación de usuarios y gestión de tokens JWT.",
+          "storage": "Almacenamiento de objetos compatible con S3 y políticas RLS.",
+          "realtime": "Transmite cambios de la base de datos por WebSocket."
+        }
+      },
+      "apiKeysTab": {
+        "title": "Llaves de API",
+        "subtitle": "Usa estas llaves con el SDK de Supabase. La llave anon es segura para el navegador; la llave service role omite RLS y debe quedarse en el servidor.",
+        "anonKey": "Anon key (pública)",
+        "anonKeyDescription": "Segura para código del lado del cliente. Respeta las políticas de Row Level Security.",
+        "serviceRoleKey": "Service role key (secreta)",
+        "serviceRoleKeyDescription": "Omite RLS. Usa solo en servidores de confianza — nunca la expongas en el navegador.",
+        "jwtSecret": "JWT secret",
+        "jwtSecretDescription": "Llave de firma para todos los JWT de este proyecto. Usada internamente por PostgREST y GoTrue.",
+        "reveal": "Mostrar",
+        "hide": "Ocultar",
+        "copy": "Copiar",
+        "copied": "¡Copiado!"
+      },
+      "databaseTab": {
+        "title": "Base de datos",
+        "subtitle": "Detalles de conexión y herramientas para la base de datos PostgreSQL de este proyecto.",
+        "connectionString": "Cadena de conexión",
+        "connectionStringHint": "Úsala en psql, pgAdmin o cualquier cliente PostgreSQL.",
+        "databaseName": "Nombre de la base de datos",
+        "authenticatorRole": "Rol autenticador",
+        "quickLinks": "Accesos rápidos",
+        "openSqlEditor": "Editor SQL",
+        "openTableEditor": "Editor de tablas",
+        "reveal": "Mostrar",
+        "hide": "Ocultar",
+        "copy": "Copiar",
+        "copied": "¡Copiado!"
+      },
+      "membersTab": {
+        "title": "Miembros del proyecto",
+        "subtitle": "Desarrolladores asignados a este proyecto. Los administradores siempre tienen acceso a todos los proyectos.",
+        "noMembers": "Aún no hay desarrolladores asignados.",
+        "noMembersHint": "Agrega desarrolladores desde la página de miembros para darles acceso a este proyecto.",
+        "addMember": "Agregar miembro",
+        "removeMember": "Quitar",
+        "memberAdded": "Miembro agregado",
+        "memberRemoved": "Miembro eliminado",
+        "selectMember": "Selecciona un desarrollador...",
+        "adminsNote": "Los administradores tienen acceso a todos los proyectos automáticamente.",
+        "errors": {
+          "already_assigned": "Este miembro ya está asignado.",
+          "network": "Error de red. Inténtalo de nuevo."
+        }
+      },
+      "settingsTab": {
+        "title": "Configuración del proyecto",
+        "subtitle": "Gestiona la configuración de este proyecto.",
+        "general": "General",
+        "projectName": "Nombre del proyecto",
+        "projectSlug": "Slug del proyecto",
+        "slugHint": "Usado en URLs y nombres de contenedores. No se puede cambiar.",
+        "createdAt": "Creado",
+        "dangerZone": "Zona de peligro",
+        "dangerDescription": "Acciones destructivas que no se pueden deshacer.",
+        "deleteProject": "Eliminar este proyecto",
+        "deleteDescription": "Elimina permanentemente este proyecto, su base de datos, todos los contenedores y las rutas de Kong."
       }
     },
     "connection": {

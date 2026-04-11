@@ -61,19 +61,17 @@ export function UserMenu({ user }: UserMenuProps) {
           <p className="text-sm font-medium text-foreground">{user.name}</p>
           <p className="truncate text-xs text-muted-foreground">{user.email}</p>
         </div>
-        <div className="my-1 h-px bg-border/40" />
-        <DropdownMenuItem asChild>
-          <Link href="/settings">
-            <UserCog className="size-4" />
-            {t('profile')}
-          </Link>
-        </DropdownMenuItem>
-        <DropdownMenuItem asChild>
-          <Link href="/settings">
-            <Settings className="size-4" />
-            {t('settings')}
-          </Link>
-        </DropdownMenuItem>
+        {user.role === 'admin' && (
+          <>
+            <div className="my-1 h-px bg-border/40" />
+            <DropdownMenuItem asChild>
+              <Link href="/settings">
+                <Settings className="size-4" />
+                {t('settings')}
+              </Link>
+            </DropdownMenuItem>
+          </>
+        )}
         <div className="my-1 h-px bg-border/40" />
         <DropdownMenuItem
           onSelect={(e) => {

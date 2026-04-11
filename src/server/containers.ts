@@ -507,3 +507,54 @@ export const containerNames = {
   storage: storageContainerName,
   realtime: realtimeContainerName,
 };
+
+// ---------------------------------------------------------------------------
+// Container inspection (for Services tab)
+// ---------------------------------------------------------------------------
+
+export interface ContainerInfo {
+  type: 'postgrest' | 'gotrue' | 'storage' | 'realtime';
+  name: string;
+  image: string;
+  running: boolean;
+  startedAt: string | null;
+  port: number;
+}
+
+const SERVICE_PORTS: Record<string, number> = {
+  postgrest: 3000,
+  gotrue: 9999,
+  storage: 5000,
+  realtime: 4000,
+};
+
+export async function getProjectContainerInfo(slug: string): Promise<ContainerInfo[]> {
+  const types = ['postgrest', 'gotrue', 'storage', 'realtime'] as const;
+  const nameFns = { postgrest: postgrestContainerName, gotrue: gotrueContainerName, storage: storageContainerName, realtime: realtimeContainerName };
+
+  const results: ContainerInfo[] = [];
+  for (const type of types) {
+    const name = nameFns[type](slug);
+    try {
+      const info = await docker.getContainer(name).inspect();
+      results.push({
+        type,
+        name,
+        image: info.Config.Image ?? '',
+        running: info.State.Running === true,
+        startedAt: info.State.StartedAt ?? null,
+        port: SERVICE_PORTS[type],
+      });
+    } catch {
+      results.push({
+        type,
+        name,
+        image: '',
+        running: false,
+        startedAt: null,
+        port: SERVICE_PORTS[type],
+      });
+    }
+  }
+  return results;
+}

@@ -1,11 +1,15 @@
+import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { AppTopbar } from '@/components/layout/app-topbar';
 import { SettingsTabs } from '@/features/settings/components/settings-tabs';
+import { getCurrentUser } from '@/server/auth';
 import { routing } from '@/i18n/routing';
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
 }
+
+export const dynamic = 'force-dynamic';
 
 export default async function SettingsPage({
   params,
@@ -14,6 +18,11 @@ export default async function SettingsPage({
 }) {
   const { locale } = await params;
   setRequestLocale(locale);
+
+  const user = await getCurrentUser();
+  if (!user) redirect(`/${locale}/login`);
+  if (user.role !== 'admin') redirect(`/${locale}/projects`);
+
   const t = await getTranslations('settings.page');
 
   return (

@@ -79,11 +79,22 @@ export function McpConfigCard({
 
   const onCopy = async () => {
     try {
-      await navigator.clipboard.writeText(config);
+      if (navigator.clipboard) {
+        await navigator.clipboard.writeText(config);
+      } else {
+        const textarea = document.createElement('textarea');
+        textarea.value = config;
+        textarea.style.position = 'fixed';
+        textarea.style.opacity = '0';
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+      }
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard may be unavailable in insecure contexts.
+      // Clipboard unavailable — silently fail.
     }
   };
 

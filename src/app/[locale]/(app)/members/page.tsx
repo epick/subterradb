@@ -25,17 +25,8 @@ export default async function MembersPage({
   const user = await getCurrentUser();
   if (!user) redirect(`/${locale}/login`);
 
-  // Members management is admin-only — devs see a forbidden notice.
-  if (user.role !== 'admin') {
-    return (
-      <>
-        <AppTopbar breadcrumbs={[{ labelKey: 'members' }]} />
-        <main className="flex flex-1 items-center justify-center px-6">
-          <ForbiddenNotice />
-        </main>
-      </>
-    );
-  }
+  // Members management is admin-only — redirect devs to projects.
+  if (user.role !== 'admin') redirect(`/${locale}/projects`);
 
   const t = await getTranslations('members.page');
   const members = await listMembers(user);

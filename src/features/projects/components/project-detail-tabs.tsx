@@ -4,8 +4,13 @@ import { useTranslations } from 'next-intl';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { ConnectionCard } from './connection-card';
 import { McpConfigCard } from './mcp-config-card';
+import { ProjectApiKeysTab } from './project-api-keys-tab';
+import { ProjectDatabaseTab } from './project-database-tab';
 import { ProjectDetailStats } from './project-detail-stats';
+import { ProjectMembersTab } from './project-members-tab';
 import { ProjectQuickActions } from './project-quick-actions';
+import { ProjectServicesTab } from './project-services-tab';
+import { ProjectSettingsTab } from './project-settings-tab';
 import type { ProjectWithKeys } from './types-client';
 
 interface ProjectDetailTabsProps {
@@ -14,21 +19,25 @@ interface ProjectDetailTabsProps {
   projectUrl: string;
   /** Pre-built Postgres connection URL for the project's database */
   dbUrl: string;
+  /** Whether the current user can manage (admin actions) */
+  canManage: boolean;
 }
 
-const TABS = ['overview', 'services', 'apiKeys', 'database', 'members', 'settings'] as const;
+const BASE_TABS = ['overview', 'services', 'apiKeys', 'database', 'members'] as const;
 
 export function ProjectDetailTabs({
   project,
   projectUrl,
   dbUrl,
+  canManage,
 }: ProjectDetailTabsProps) {
   const t = useTranslations('projects.detail.tabs');
+  const tabs = canManage ? [...BASE_TABS, 'settings' as const] : BASE_TABS;
 
   return (
     <Tabs defaultValue="overview" className="w-full">
       <TabsList className="w-full justify-start overflow-x-auto">
-        {TABS.map((key) => (
+        {tabs.map((key) => (
           <TabsTrigger key={key} value={key}>
             {t(key)}
           </TabsTrigger>
@@ -47,27 +56,31 @@ export function ProjectDetailTabs({
         />
       </TabsContent>
 
-      {/* Placeholder content for tabs that aren't implemented yet — kept on-brand */}
-      {(['services', 'apiKeys', 'database', 'members', 'settings'] as const).map((key) => (
-        <TabsContent key={key} value={key}>
-          <ComingSoon labelKey={key} />
+      <TabsContent value="services">
+        <ProjectServicesTab projectId={project.id} />
+      </TabsContent>
+
+      <TabsContent value="apiKeys">
+        <ProjectApiKeysTab project={project} />
+      </TabsContent>
+
+      <TabsContent value="database">
+        <ProjectDatabaseTab project={project} dbUrl={dbUrl} />
+      </TabsContent>
+
+      <TabsContent value="members">
+        <ProjectMembersTab
+          projectId={project.id}
+          members={project.members}
+          isAdmin={canManage}
+        />
+      </TabsContent>
+
+      {canManage && (
+        <TabsContent value="settings">
+          <ProjectSettingsTab project={project} canManage={canManage} />
         </TabsContent>
-      ))}
+      )}
     </Tabs>
-  );
-}
-
-function ComingSoon({ labelKey }: { labelKey: string }) {
-  const t = useTranslations('projects.detail');
-  const tTabs = useTranslations('projects.detail.tabs');
-
-  return (
-    <div className="flex flex-col items-center justify-center gap-3 rounded-2xl border border-dashed border-border/50 bg-card/40 px-6 py-20 text-center backdrop-blur-xl">
-      <span className="rounded-full border border-[color:var(--color-brand-from)]/30 bg-[color:var(--color-brand-from)]/10 px-3 py-1 text-xs font-semibold uppercase tracking-wider text-[color:var(--color-brand-from)]">
-        {t('comingSoon.kicker')}
-      </span>
-      <h3 className="text-lg font-semibold text-foreground">{tTabs(labelKey)}</h3>
-      <p className="max-w-md text-sm text-muted-foreground">{t('comingSoon.description')}</p>
-    </div>
   );
 }

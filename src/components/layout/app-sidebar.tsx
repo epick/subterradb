@@ -14,13 +14,14 @@ interface NavItem {
   href: string;
   icon: LucideIcon;
   labelKey: 'projects' | 'members' | 'gateway' | 'settings';
+  adminOnly?: boolean;
 }
 
 const NAV_ITEMS: NavItem[] = [
   { href: '/projects', icon: Database, labelKey: 'projects' },
-  { href: '/members', icon: Users, labelKey: 'members' },
-  { href: '/gateway', icon: Network, labelKey: 'gateway' },
-  { href: '/settings', icon: Settings, labelKey: 'settings' },
+  { href: '/members', icon: Users, labelKey: 'members', adminOnly: true },
+  { href: '/gateway', icon: Network, labelKey: 'gateway', adminOnly: true },
+  { href: '/settings', icon: Settings, labelKey: 'settings', adminOnly: true },
 ];
 
 interface AppSidebarProps {
@@ -47,7 +48,7 @@ export function AppSidebar({ user, version }: AppSidebarProps) {
       </div>
 
       <nav className="flex-1 space-y-1 px-3 py-4">
-        {NAV_ITEMS.map(({ href, icon: Icon, labelKey }) => {
+        {NAV_ITEMS.filter((item) => !item.adminOnly || user.role === 'admin').map(({ href, icon: Icon, labelKey }) => {
           const isActive = pathname === href || pathname.startsWith(`${href}/`);
           return (
             <Link

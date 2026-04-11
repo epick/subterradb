@@ -16,25 +16,41 @@ interface CopyButtonProps {
   className?: string;
 }
 
+function copyToClipboard(value: string): void {
+  if (navigator.clipboard) {
+    navigator.clipboard.writeText(value);
+    return;
+  }
+  // Fallback for insecure contexts (plain HTTP).
+  const textarea = document.createElement('textarea');
+  textarea.value = value;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.select();
+  document.execCommand('copy');
+  document.body.removeChild(textarea);
+}
+
 // Small icon button that copies its value to the clipboard and confirms with
-// a green check + tooltip for ~1.5s. Used inside connection cards.
+// a green check + forced-open tooltip for ~1.5s.
 export function CopyButton({ value, className }: CopyButtonProps) {
   const t = useTranslations('common');
   const [copied, setCopied] = useState(false);
 
-  const onClick = async () => {
+  const onClick = () => {
     try {
-      await navigator.clipboard.writeText(value);
+      copyToClipboard(value);
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1500);
     } catch {
-      // Clipboard may be unavailable in insecure contexts; silently fail.
+      // Clipboard unavailable — silently fail.
     }
   };
 
   return (
-    <TooltipProvider delayDuration={150}>
-      <Tooltip>
+    <TooltipProvider delayDuration={0}>
+      <Tooltip open={copied || undefined}>
         <TooltipTrigger asChild>
           <button
             type="button"
@@ -50,7 +66,13 @@ export function CopyButton({ value, className }: CopyButtonProps) {
             {copied ? <Check className="size-3.5" /> : <Copy className="size-3.5" />}
           </button>
         </TooltipTrigger>
-        <TooltipContent>{copied ? t('copied') : t('copy')}</TooltipContent>
+        <TooltipContent>
+          {copied ? (
+            <span className="text-emerald-300">{t('copied')}</span>
+          ) : (
+            t('copy')
+          )}
+        </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
