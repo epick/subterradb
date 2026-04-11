@@ -134,6 +134,39 @@ export async function inviteMember(
 }
 
 // ---------------------------------------------------------------------------
+// Update password
+// ---------------------------------------------------------------------------
+
+export async function updateMemberPassword(
+  actor: SessionUser,
+  memberId: string,
+  newPassword: string,
+): Promise<void> {
+  assertAdmin(actor);
+
+  if (!newPassword || newPassword.length < 8) {
+    throw Object.assign(new Error('Password must be at least 8 characters'), {
+      code: 'members.password_too_short',
+      status: 400,
+    });
+  }
+
+  const target = await query(`SELECT 1 FROM platform_users WHERE id = $1`, [memberId]);
+  if (target.rowCount === 0) {
+    throw Object.assign(new Error('Member not found'), {
+      code: 'members.not_found',
+      status: 404,
+    });
+  }
+
+  const passwordHash = await hashPassword(newPassword);
+  await query(`UPDATE platform_users SET password_hash = $1 WHERE id = $2`, [
+    passwordHash,
+    memberId,
+  ]);
+}
+
+// ---------------------------------------------------------------------------
 // Delete
 // ---------------------------------------------------------------------------
 

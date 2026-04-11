@@ -46,7 +46,7 @@
           },
           "lightweight": {
             "title": "Lightweight footprint",
-            "description": "Around 180 MB of RAM per project."
+            "description": "Around 316 MB of RAM per project."
           },
           "dropIn": {
             "title": "Drop-in compatible",
@@ -401,6 +401,60 @@
       },
       "status": {
         "pending": "Pending"
+      },
+      "menu": {
+        "changePassword": "Change password",
+        "delete": "Delete member"
+      }
+    },
+    "invite": {
+      "title": "Invite member",
+      "description": "Create a new platform user. They can log in immediately with the credentials you set.",
+      "email": "Email",
+      "emailPlaceholder": "dev@example.com",
+      "name": "Full name",
+      "namePlaceholder": "Jane Doe",
+      "role": "Role",
+      "password": "Password",
+      "passwordPlaceholder": "Minimum 8 characters",
+      "cancel": "Cancel",
+      "submit": "Create member",
+      "creating": "Creating...",
+      "errors": {
+        "members_missing_fields": "Email and name are required.",
+        "members_email_taken": "A member with this email already exists.",
+        "members_password_too_short": "Password must be at least 8 characters.",
+        "members_invalid_role": "Invalid role.",
+        "members_forbidden": "Only admins can invite members.",
+        "network": "Network error. Please try again."
+      }
+    },
+    "changePassword": {
+      "title": "Change password",
+      "description": "Set a new password for {name}.",
+      "password": "New password",
+      "passwordPlaceholder": "Minimum 8 characters",
+      "cancel": "Cancel",
+      "submit": "Update password",
+      "updating": "Updating...",
+      "errors": {
+        "members_password_too_short": "Password must be at least 8 characters.",
+        "members_not_found": "Member not found.",
+        "members_forbidden": "Only admins can change passwords.",
+        "network": "Network error. Please try again."
+      }
+    },
+    "delete": {
+      "title": "Delete member",
+      "description": "Are you sure you want to remove {name}? This action cannot be undone. The member will lose access to all projects immediately.",
+      "cancel": "Cancel",
+      "confirm": "Delete member",
+      "deleting": "Deleting...",
+      "errors": {
+        "members_cannot_remove_self": "You cannot remove your own account.",
+        "members_cannot_remove_last_admin": "Cannot remove the last administrator.",
+        "members_forbidden": "Only admins can remove members.",
+        "network": "Network error. Please try again."
       }
     }
   },

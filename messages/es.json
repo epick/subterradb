@@ -46,7 +46,7 @@
           },
           "lightweight": {
             "title": "Huella ligera",
-            "description": "Alrededor de 180 MB de RAM por proyecto."
+            "description": "Alrededor de 316 MB de RAM por proyecto."
           },
           "dropIn": {
             "title": "Compatibilidad directa",
@@ -401,6 +401,60 @@
       },
       "status": {
         "pending": "Pendiente"
+      },
+      "menu": {
+        "changePassword": "Cambiar contraseña",
+        "delete": "Eliminar miembro"
+      }
+    },
+    "invite": {
+      "title": "Invitar miembro",
+      "description": "Crea un nuevo usuario de la plataforma. Podrá iniciar sesión de inmediato con las credenciales que definas.",
+      "email": "Correo electrónico",
+      "emailPlaceholder": "dev@ejemplo.com",
+      "name": "Nombre completo",
+      "namePlaceholder": "María García",
+      "role": "Rol",
+      "password": "Contraseña",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "cancel": "Cancelar",
+      "submit": "Crear miembro",
+      "creating": "Creando...",
+      "errors": {
+        "members_missing_fields": "El correo y el nombre son obligatorios.",
+        "members_email_taken": "Ya existe un miembro con este correo.",
+        "members_password_too_short": "La contraseña debe tener al menos 8 caracteres.",
+        "members_invalid_role": "Rol inválido.",
+        "members_forbidden": "Solo los administradores pueden invitar miembros.",
+        "network": "Error de red. Inténtalo de nuevo."
+      }
+    },
+    "changePassword": {
+      "title": "Cambiar contraseña",
+      "description": "Establece una nueva contraseña para {name}.",
+      "password": "Nueva contraseña",
+      "passwordPlaceholder": "Mínimo 8 caracteres",
+      "cancel": "Cancelar",
+      "submit": "Actualizar contraseña",
+      "updating": "Actualizando...",
+      "errors": {
+        "members_password_too_short": "La contraseña debe tener al menos 8 caracteres.",
+        "members_not_found": "Miembro no encontrado.",
+        "members_forbidden": "Solo los administradores pueden cambiar contraseñas.",
+        "network": "Error de red. Inténtalo de nuevo."
+      }
+    },
+    "delete": {
+      "title": "Eliminar miembro",
+      "description": "¿Seguro que quieres eliminar a {name}? Esta acción no se puede deshacer. El miembro perderá acceso a todos los proyectos de inmediato.",
+      "cancel": "Cancelar",
+      "confirm": "Eliminar miembro",
+      "deleting": "Eliminando...",
+      "errors": {
+        "members_cannot_remove_self": "No puedes eliminar tu propia cuenta.",
+        "members_cannot_remove_last_admin": "No se puede eliminar al último administrador.",
+        "members_forbidden": "Solo los administradores pueden eliminar miembros.",
+        "network": "Error de red. Inténtalo de nuevo."
       }
     }
   },

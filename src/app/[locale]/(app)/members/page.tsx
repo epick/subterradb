@@ -1,8 +1,7 @@
-import { UserPlus } from 'lucide-react';
 import { redirect } from 'next/navigation';
 import { getTranslations, setRequestLocale } from 'next-intl/server';
 import { AppTopbar } from '@/components/layout/app-topbar';
-import { Button } from '@/components/ui/button';
+import { InviteMemberDialog } from '@/features/members/components/invite-member-dialog';
 import { MembersStats } from '@/features/members/components/members-stats';
 import { MembersTable } from '@/features/members/components/members-table';
 import { getCurrentUser } from '@/server/auth';
@@ -56,14 +55,11 @@ export default async function MembersPage({
                 {t('subtitle')}
               </p>
             </div>
-            <Button variant="brand" size="lg" className="self-start sm:self-auto">
-              <UserPlus className="size-4" />
-              {t('invite')}
-            </Button>
+            <InviteMemberDialog />
           </header>
 
           <MembersStats members={members} />
-          <MembersTable members={members} />
+          <MembersTable members={members} currentUserId={user.id} />
         </div>
       </main>
     </>

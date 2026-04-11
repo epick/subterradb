@@ -240,24 +240,29 @@ export async function createProjectDatabase(
       await c.query(`GRANT ALL ON SCHEMA public TO service_role`);
       await c.query(`GRANT CREATE ON SCHEMA public TO ${authenticator}, service_role`);
 
-      // Default privileges so any future table created by the authenticator
-      // is automatically accessible to anon/authenticated/service_role.
-      await c.query(
-        `ALTER DEFAULT PRIVILEGES FOR ROLE ${authenticator} IN SCHEMA public
-         GRANT ALL ON TABLES TO service_role`,
-      );
-      await c.query(
-        `ALTER DEFAULT PRIVILEGES FOR ROLE ${authenticator} IN SCHEMA public
-         GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO authenticated`,
-      );
-      await c.query(
-        `ALTER DEFAULT PRIVILEGES FOR ROLE ${authenticator} IN SCHEMA public
-         GRANT SELECT ON TABLES TO anon`,
-      );
-      await c.query(
-        `ALTER DEFAULT PRIVILEGES FOR ROLE ${authenticator} IN SCHEMA public
-         GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated, service_role`,
-      );
+      // Default privileges so any future table created by the authenticator,
+      // service_role (used by the SQL editor via SET ROLE), or postgres is
+      // automatically accessible to anon/authenticated/service_role.
+      // Without service_role here, tables created from the SQL editor would
+      // return 42501 "permission denied" even though RLS is configured.
+      for (const creator of [authenticator, 'service_role', 'postgres']) {
+        await c.query(
+          `ALTER DEFAULT PRIVILEGES FOR ROLE ${creator} IN SCHEMA public
+           GRANT ALL ON TABLES TO service_role`,
+        );
+        await c.query(
+          `ALTER DEFAULT PRIVILEGES FOR ROLE ${creator} IN SCHEMA public
+           GRANT SELECT, INSERT, UPDATE, DELETE ON TABLES TO authenticated`,
+        );
+        await c.query(
+          `ALTER DEFAULT PRIVILEGES FOR ROLE ${creator} IN SCHEMA public
+           GRANT SELECT ON TABLES TO anon`,
+        );
+        await c.query(
+          `ALTER DEFAULT PRIVILEGES FOR ROLE ${creator} IN SCHEMA public
+           GRANT USAGE, SELECT ON SEQUENCES TO anon, authenticated, service_role`,
+        );
+      }
 
       // auth schema permissions (mostly for service_role to read user metadata).
       await c.query(`GRANT USAGE ON SCHEMA auth TO service_role`);

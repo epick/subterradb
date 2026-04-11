@@ -67,7 +67,7 @@ interface LaunchResult {
   name: string;
 }
 
-interface ProjectContainerInput {
+export interface ProjectContainerInput {
   slug: string;
   /** The per-project Postgres database, e.g. proj_influx_web */
   databaseName: string;
@@ -145,6 +145,10 @@ export async function launchPostgrest(input: ProjectContainerInput): Promise<Lau
       'PGRST_DB_ANON_ROLE=anon',
       `PGRST_JWT_SECRET=${input.jwtSecret}`,
       'PGRST_SERVER_PORT=3000',
+      // Listen for NOTIFY pgrst so schema changes (CREATE TABLE, ALTER TABLE)
+      // are picked up automatically without restarting the container.
+      'PGRST_DB_CHANNEL_ENABLED=true',
+      'PGRST_DB_CHANNEL=pgrst',
       // Speed up first cold start — PostgREST polls the schema for ~10s by default.
       'PGRST_DB_POOL=10',
     ],

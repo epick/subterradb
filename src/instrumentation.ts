@@ -14,6 +14,7 @@ export async function register() {
   if (process.env.NEXT_RUNTIME !== 'nodejs') return;
 
   const { runMigrations } = await import('./server/migrations');
+  const { upgradeExistingProjects } = await import('./server/project-upgrades');
 
   try {
     const result = await runMigrations();
@@ -39,5 +40,19 @@ export async function register() {
     // Re-throw so Next.js aborts startup. Better to crash loudly than to
     // serve API requests with a half-applied schema.
     throw err;
+  }
+
+  // Per-project upgrades: patch existing projects with configuration fixes
+  // (default privileges, Kong public storage route, etc.). Best-effort —
+  // failures are logged but don't prevent startup.
+  try {
+    const upgraded = await upgradeExistingProjects();
+    if (upgraded > 0) {
+      // eslint-disable-next-line no-console
+      console.log(`[project-upgrades] patched ${upgraded} existing project(s)`);
+    }
+  } catch (err) {
+    // eslint-disable-next-line no-console
+    console.warn('[project-upgrades] non-fatal error:', err);
   }
 }

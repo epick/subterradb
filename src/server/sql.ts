@@ -120,6 +120,13 @@ export async function executeSql(
     const result = await client.query(trimmed);
     await client.query('COMMIT');
 
+    // If the query looks like DDL, notify PostgREST so it reloads its
+    // schema cache. Without this, new tables/columns return 404 until
+    // the container is restarted.
+    if (/^\s*(CREATE|ALTER|DROP)\s/i.test(trimmed)) {
+      await client.query("NOTIFY pgrst, 'reload schema'");
+    }
+
     const durationMs = Date.now() - start;
     const columns = (result.fields ?? []).map((f) => f.name);
     const rows = (result.rows ?? []) as Array<Record<string, unknown>>;

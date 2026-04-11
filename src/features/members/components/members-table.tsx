@@ -1,20 +1,21 @@
-import { MoreHorizontal } from 'lucide-react';
 import { useFormatter, useTranslations } from 'next-intl';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
+import { MemberActions } from './member-actions';
 import { RoleBadge } from './role-badge';
 import type { Member } from '../types';
 
 interface MembersTableProps {
   members: Member[];
+  currentUserId: string;
 }
 
 // Shared grid template — keeps every row column-aligned with the header.
 // CSS columns: User (flex), Role, Projects, Last active, Joined, Action.
 const ROW_GRID = 'grid grid-cols-[minmax(0,1fr)_140px_140px_160px_140px_44px] items-center gap-4';
 
-export function MembersTable({ members }: MembersTableProps) {
+export function MembersTable({ members, currentUserId }: MembersTableProps) {
   const t = useTranslations('members.table');
   const format = useFormatter();
   const now = new Date();
@@ -119,13 +120,7 @@ export function MembersTable({ members }: MembersTableProps) {
 
                 {/* Action column */}
                 <div className="flex justify-end">
-                  <button
-                    type="button"
-                    aria-label={t('actions')}
-                    className="inline-flex size-8 items-center justify-center rounded-md border border-border/60 bg-card/40 text-muted-foreground transition-colors hover:border-[color:var(--color-brand-from)]/40 hover:text-foreground"
-                  >
-                    <MoreHorizontal className="size-4" />
-                  </button>
+                  <MemberActions member={member} currentUserId={currentUserId} />
                 </div>
               </li>
             );

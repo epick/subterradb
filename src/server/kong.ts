@@ -347,6 +347,12 @@ export async function provisionProject(
     await enableRequestTransformerPlugin(serviceName, [`X-SubterraDB-Project:${slug}`]);
   }
 
+  // 2b. Public storage route — serves /{slug}/storage/v1/object/public/*
+  //     without key-auth so public bucket URLs work like Supabase Cloud.
+  //     Kong matches the longer path first, so this wins over the general
+  //     storage route above.
+  await provisionPublicStorageRoute(slug, upstreams);
+
   // 3. Wait for Kong's router to pick up the new routes.
   //    Spike gotcha #5: rebuild is async; poll a known route until it answers.
   const probePath = `/${slug}${SERVICE_PATHS.rest}/_subterradb_probe`;
@@ -360,7 +366,37 @@ export async function deprovisionProject(slug: string): Promise<void> {
   for (const type of PROJECT_SERVICES) {
     await deleteServiceByName(`${type}_${slug}`);
   }
+  // Clean up the public-storage service if it exists.
+  await deleteServiceByName(publicStorageServiceName(slug));
   await deleteConsumerByName(`consumer_${slug}`);
+}
+
+// ---------------------------------------------------------------------------
+// Public storage route (no auth required)
+// ---------------------------------------------------------------------------
+
+function publicStorageServiceName(slug: string): string {
+  return `storage_public_${slug}`;
+}
+
+/**
+ * Creates a Kong service + route for /{slug}/storage/v1/object/public that
+ * has CORS but NO key-auth / ACL, so public bucket URLs work without an
+ * apikey — matching Supabase Cloud behaviour.
+ */
+export async function provisionPublicStorageRoute(
+  slug: string,
+  upstreams: Partial<Record<ProjectServiceType, string>> = {},
+): Promise<void> {
+  const serviceName = publicStorageServiceName(slug);
+  const routeName = `${serviceName}_route`;
+  const publicPath = `/${slug}/storage/v1/object/public`;
+  const upstreamUrl = upstreams.storage ?? env.kongUpstreamPlaceholder;
+
+  await createService({ name: serviceName, url: upstreamUrl });
+  await createRoute({ serviceName, routeName, paths: [publicPath] });
+  await enableCorsPlugin(serviceName);
+  await enableRequestTransformerPlugin(serviceName, [`X-SubterraDB-Project:${slug}`]);
 }
 
 // ---------------------------------------------------------------------------
