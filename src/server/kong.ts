@@ -391,7 +391,14 @@ export async function provisionPublicStorageRoute(
   const serviceName = publicStorageServiceName(slug);
   const routeName = `${serviceName}_route`;
   const publicPath = `/${slug}/storage/v1/object/public`;
-  const upstreamUrl = upstreams.storage ?? env.kongUpstreamPlaceholder;
+  const baseUpstream = upstreams.storage ?? env.kongUpstreamPlaceholder;
+
+  // Kong strip_path=true (default) removes the matched route prefix before
+  // forwarding. For a request to /{slug}/storage/v1/object/public/bucket/file,
+  // Kong strips /{slug}/storage/v1/object/public and sends /bucket/file to the
+  // upstream. The Storage API expects /object/public/bucket/file, so we bake
+  // /object/public into the service URL to compensate.
+  const upstreamUrl = baseUpstream.replace(/\/$/, '') + '/object/public';
 
   await createService({ name: serviceName, url: upstreamUrl });
   await createRoute({ serviceName, routeName, paths: [publicPath] });

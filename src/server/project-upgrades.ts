@@ -11,7 +11,7 @@ import { env } from './env';
 import { query } from './db';
 import {
   provisionPublicStorageRoute,
-  KongError,
+  deleteServiceByName,
 } from './kong';
 import { containerNames, launchPostgrest } from './containers';
 
@@ -122,15 +122,13 @@ async function fixPostgrestSchemaReload(project: ProjectRow): Promise<void> {
 // ---------------------------------------------------------------------------
 
 async function fixPublicStorageRoute(slug: string): Promise<void> {
-  try {
-    await provisionPublicStorageRoute(slug, {
-      storage: `http://${containerNames.storage(slug)}:5000`,
-    });
-  } catch (err) {
-    // 409 = already exists (idempotent). Anything else is a real error.
-    if (err instanceof KongError && err.status === 409) return;
-    throw err;
-  }
+  // Always delete + recreate so the service URL stays in sync with the
+  // latest provisionPublicStorageRoute logic (e.g. the /object/public
+  // suffix fix). deleteServiceByName is a no-op if it doesn't exist.
+  await deleteServiceByName(`storage_public_${slug}`);
+  await provisionPublicStorageRoute(slug, {
+    storage: `http://${containerNames.storage(slug)}:5000`,
+  });
 }
 
 // ---------------------------------------------------------------------------
